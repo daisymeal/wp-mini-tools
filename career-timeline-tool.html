@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="description" content="Satirical generator for how long a career transition actually takes, once reality gets a vote.">
+<title>Career Transition Timeline Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Quicksand:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  html, body { margin:0; padding:0; background:transparent; }
+
+  #ctt {
+    all: initial;
+    font-family: 'Quicksand', 'Segoe UI', system-ui, sans-serif;
+    display: block; position: relative; box-sizing: border-box;
+    max-width: 820px; margin: 0 auto; padding: 34px;
+    color: #40364F; line-height: 1.6;
+    background: linear-gradient(150deg, #FFF6FA 0%, #F3F0FC 45%, #EAF7F4 100%);
+    border: 1px solid #EFE4F1; border-radius: 28px;
+    box-shadow: 0 20px 60px rgba(160,140,190,0.16);
+  }
+  #ctt * { box-sizing: border-box; font-family: inherit; }
+
+  /* --- pastel palette, one hue per event category --- */
+  #ctt .t-tech    { --hue:#8FD3C4; --soft:#E6F7F3; }
+  #ctt .t-ai      { --hue:#B49BE0; --soft:#F0E9FB; }
+  #ctt .t-org     { --hue:#F5A97F; --soft:#FDEEE3; }
+  #ctt .t-hiring  { --hue:#7FB6E8; --soft:#E6F1FC; }
+  #ctt .t-life    { --hue:#E9C46A; --soft:#FBF3DE; }
+  #ctt .t-good    { --hue:#EE8FB4; --soft:#FCE8F0; }
+
+  #ctt .c-eyebrow { display:block; text-align:center; font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:#B08BC7; font-weight:700; margin:0 0 8px; }
+  #ctt .c-title { font-family:Georgia,'Fraunces',serif; display:block; text-align:center; font-size:36px; line-height:1.08; font-weight:800; margin:0 0 8px; color:#40364F; }
+  #ctt .c-sub { display:block; text-align:center; font-size:15px; color:#8A7E96; margin:0 0 26px; }
+
+  #ctt .c-card { background:#fff; border:1px solid #EFE4F1; border-radius:22px; padding:24px; margin-bottom:18px; box-shadow:0 8px 24px rgba(160,140,190,.12); }
+  #ctt .c-label { display:block; font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:#8A7E96; margin-bottom:7px; }
+  #ctt .c-label b { color:#B49BE0; }
+  #ctt .c-row { display:flex; gap:14px; flex-wrap:wrap; }
+  #ctt .c-row > div { flex:1 1 220px; }
+
+  #ctt select, #ctt input[type=number] {
+    width:100%; padding:12px; font-size:14px; color:#40364F;
+    background:#FBF8FD; border:2px solid #EFE4F1; border-radius:14px;
+    margin-bottom:16px; display:block; appearance:none; -webkit-appearance:none; transition:.2s;
+  }
+  #ctt select:focus, #ctt input:focus { border-color:#B49BE0; background:#fff; outline:none; }
+  #ctt input[type=range] { width:100%; accent-color:#B49BE0; display:block; margin:2px 0 4px; }
+  #ctt .c-hint { display:block; font-size:12.5px; font-style:italic; color:#8A7E96; margin-bottom:14px; }
+
+  #ctt .c-actions { display:flex; gap:10px; flex-wrap:wrap; }
+  #ctt button { flex:1 1 160px; padding:14px; font-size:13.5px; font-weight:700; border:none; border-radius:999px; cursor:pointer; transition:.2s; font-family:inherit; }
+  #ctt .c-primary { background:#B49BE0; color:#fff; box-shadow:0 6px 16px rgba(180,155,224,.36); }
+  #ctt .c-primary:hover { background:#a184d6; transform:translateY(-2px); }
+  #ctt .c-secondary { background:#fff; color:#40364F; border:1.5px solid #EFE4F1; }
+  #ctt .c-secondary:hover { background:#FBF8FD; transform:translateY(-2px); }
+  #ctt .c-danger { background:#FCE8F0; color:#C2547F; border:1.5px solid #F7D4E2; }
+  #ctt .c-danger:hover { background:#F9DCE8; transform:translateY(-2px); }
+
+  /* --- results --- */
+  #ctt .c-out { display:none; margin-top:22px; }
+  #ctt .c-heads { display:flex; gap:14px; flex-wrap:wrap; margin-bottom:18px; }
+  #ctt .c-head { flex:1 1 200px; background:#fff; border:1px solid #EFE4F1; border-radius:20px; padding:20px; text-align:center; }
+  #ctt .c-head-lab { display:block; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:#8A7E96; font-weight:700; margin-bottom:6px; }
+  #ctt .c-head-val { display:block; font-family:Georgia,serif; font-size:30px; font-weight:800; line-height:1.1; }
+  #ctt .c-naive .c-head-val { color:#8FD3C4; }
+  #ctt .c-real .c-head-val { color:#B49BE0; }
+  #ctt .c-creep .c-head-val { color:#EE8FB4; }
+
+  #ctt .c-stamp { display:block; text-align:center; margin:0 auto 20px; width:max-content; border:3px double #B49BE0; color:#B49BE0;
+    padding:6px 18px; border-radius:10px; font-weight:800; letter-spacing:.1em; font-size:16px; transform:rotate(-2deg); background:rgba(255,255,255,.8); }
+
+  #ctt .c-section { display:block; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:#8A7E96; font-weight:700; margin:0 0 12px 2px; }
+
+  #ctt .c-ev { display:flex; gap:14px; align-items:flex-start; background:var(--soft); border-left:5px solid var(--hue);
+    border-radius:14px; padding:14px 16px; margin-bottom:10px; }
+  #ctt .c-ev-q { flex:0 0 auto; font-weight:800; font-size:12px; color:#40364F; background:#fff; border-radius:8px; padding:3px 9px; margin-top:2px; }
+  #ctt .c-ev-body { flex:1 1 auto; }
+  #ctt .c-ev-tag { display:inline-block; font-size:10px; letter-spacing:.1em; text-transform:uppercase; font-weight:700; color:#fff; background:var(--hue); border-radius:6px; padding:2px 8px; margin-bottom:5px; }
+  #ctt .c-ev-txt { display:block; font-size:14px; color:#40364F; }
+  #ctt .c-ev-delta { flex:0 0 auto; font-weight:800; font-size:14px; color:var(--hue); margin-top:2px; white-space:nowrap; }
+
+  #ctt .c-stats { background:#fff; border:1px solid #EFE4F1; border-radius:20px; padding:20px 22px; margin-top:18px; }
+  #ctt .c-stat { display:flex; justify-content:space-between; gap:12px; padding:5px 0; font-size:13.5px; border-bottom:1px dotted #EFE4F1; }
+  #ctt .c-stat:last-child { border-bottom:none; }
+  #ctt .c-stat span:last-child { font-weight:700; white-space:nowrap; }
+
+  #ctt .c-real-talk { background:#EAF7F4; border:1px solid #CDEBE3; border-radius:20px; padding:20px 22px; margin-top:18px; font-size:14px; color:#3B5A54; }
+  #ctt .c-real-talk b { color:#2E6B5C; }
+
+  #ctt .c-note { display:block; text-align:center; font-size:11.5px; color:#8A7E96; margin-top:18px; }
+
+  @media(max-width:640px){
+    #ctt { padding:20px; border-radius:22px; }
+    #ctt .c-title { font-size:27px; }
+    #ctt .c-head-val { font-size:24px; }
+    #ctt .c-ev { flex-wrap:wrap; gap:8px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="ctt">
+
+  <span class="c-eyebrow">satire tool &middot; runs in your browser &middot; nothing is saved</span>
+  <span class="c-title">Career Transition Timeline Generator</span>
+  <span class="c-sub">Tell it your plan. It will give the plan back to you, revised. &#128198;</span>
+
+  <div class="c-card">
+    <div class="c-row">
+      <div>
+        <label class="c-label" for="ct-from">Escaping from</label>
+        <select id="ct-from">
+          <option value="IC design">IC / chip design</option>
+          <option value="verification">Design verification</option>
+          <option value="firmware">Firmware / embedded</option>
+          <option value="IT support">IT support</option>
+          <option value="QA">QA / test</option>
+          <option value="data analysis">Data analysis</option>
+          <option value="teaching">Teaching</option>
+          <option value="something adjacent">Something adjacent I do not explain at parties</option>
+        </select>
+      </div>
+      <div>
+        <label class="c-label" for="ct-to">Heading towards</label>
+        <select id="ct-to">
+          <option value="380">Security engineering</option>
+          <option value="460">Penetration testing</option>
+          <option value="340">Detection engineering</option>
+          <option value="500">Hardware security</option>
+          <option value="420">Cloud engineering</option>
+          <option value="520">ML engineering</option>
+          <option value="440">AI security</option>
+          <option value="300">Anything that pays and is not this</option>
+        </select>
+      </div>
+    </div>
+
+    <label class="c-label" for="ct-hours">Study hours per week &mdash; <b id="ct-hours-out">5</b></label>
+    <input type="range" id="ct-hours" min="1" max="25" value="5" data-ct="hours">
+    <span class="c-hint" id="ct-hours-word">Realistic. This is the honest answer for most people.</span>
+
+    <div class="c-row">
+      <div>
+        <label class="c-label" for="ct-life">Life mode</label>
+        <select id="ct-life">
+          <option value="1">Single, no dependants</option>
+          <option value="0.85">Partnered</option>
+          <option value="0.5">Young kids</option>
+          <option value="0.6">Caring for a parent</option>
+          <option value="0.7">Night shift / on-call rotation</option>
+        </select>
+      </div>
+      <div>
+        <label class="c-label" for="ct-age">Your age (optional)</label>
+        <input type="number" id="ct-age" value="30" min="16" max="80" step="1">
+      </div>
+    </div>
+
+    <label class="c-label" for="ct-hope">Optimism level</label>
+    <select id="ct-hope">
+      <option value="naive">Naive. It will take six months.</option>
+      <option value="cautious" selected>Cautious. I have read some Reddit.</option>
+      <option value="broken">Broken. I have tried this before.</option>
+    </select>
+
+    <div class="c-actions">
+      <button type="button" class="c-primary" data-ct="run">Generate my timeline &#10024;</button>
+      <button type="button" class="c-secondary" data-ct="again">&#128260; Recalculate</button>
+      <button type="button" class="c-danger" data-ct="copy">&#128203; Copy result</button>
+    </div>
+  </div>
+
+  <div class="c-out" id="ct-out">
+
+    <span class="c-stamp" id="ct-stamp">SLIPPED</span>
+
+    <div class="c-heads">
+      <div class="c-head c-naive"><span class="c-head-lab">Your estimate</span><span class="c-head-val" id="ct-naive">-</span></div>
+      <div class="c-head c-real"><span class="c-head-lab">Revised estimate</span><span class="c-head-val" id="ct-revised">-</span></div>
+      <div class="c-head c-creep"><span class="c-head-lab">Scope creep</span><span class="c-head-val" id="ct-creep">-</span></div>
+    </div>
+
+    <span class="c-section">What happened along the way</span>
+    <div id="ct-events"></div>
+
+    <div class="c-stats" id="ct-stats"></div>
+
+    <div class="c-real-talk">
+      <b>The part that is not a joke.</b> Most real transitions land somewhere between 18 months and 3 years.
+      Almost every delay above is something done <i>to</i> you, not by you &mdash; the field moving, a filter rejecting you,
+      a reorg you did not vote for. The people who get there are not the ones who avoided the slippage.
+      They are the ones who were still going after it.
+    </div>
+
+    <span class="c-note">Satire, obviously. Not career advice, not a prediction, and not a reason to stop.</span>
+  </div>
+
+</div>
+
+<script>
+(function () {
+
+  var EVENTS = {
+    tech: { tag: "Tech churn", cls: "t-tech", list: [
+      ["The framework your course was built on got deprecated.", 4],
+      ["Your target exam released a new version number. Syllabus reset.", 5],
+      ["Everything you learned about that tool is now called legacy. So are you.", 3],
+      ["The vendor got acquired, the product got renamed, your notes are archaeology.", 4],
+      ["Your 2024 course covers a UI that no longer exists.", 3],
+      ["The best practice you memorised is now the thing people write blog posts against.", 2]
+    ]},
+    ai: { tag: "AI takeover", cls: "t-ai", list: [
+      ["AI now does most of the entry-level version of your target role. The target moved up a rung.", 7],
+      ["Every job posting added AI experience as a requirement. Nobody offers a way to get it.", 5],
+      ["A model did in nine seconds the task you spent a weekend learning. You are still learning it.", 4],
+      ["Your company announced an AI-first strategy. Nobody knows what this means, including the person who announced it.", 3],
+      ["Your target role now requires prompt engineering, a discipline younger than your laptop.", 4],
+      ["A new role opened cleaning up what the AI produced. Same job, worse hours.", 5],
+      ["Half the tutorials you were following were AI-generated and confidently wrong.", 4]
+    ]},
+    org: { tag: "Your employer", cls: "t-org", list: [
+      ["You got promoted in the field you are leaving. Golden handcuffs.", 8],
+      ["Reorg. You now report to someone who reports to you.", 4],
+      ["Training budget exists but needs manager approval, and your manager left.", 3],
+      ["Your project slipped, so you slipped. Correlation is not causation but it is a pattern.", 5],
+      ["You became the only person who understands the legacy system. You may never leave.", 9],
+      ["Headcount freeze. The internal transfer you were promised is now a conversation for next year.", 6]
+    ]},
+    hiring: { tag: "Hiring reality", cls: "t-hiring", list: [
+      ["Junior roles require three years of experience in the thing you are transitioning into.", 6],
+      ["Your CV was rejected by a keyword filter for lacking a keyword that appears in your CV.", 3],
+      ["A recruiter asked why you are starting over at your age. You are not old.", 2],
+      ["They want your exact background, but with five years already doing the target job.", 5],
+      ["The role was filled internally. It was posted for compliance reasons.", 4],
+      ["Four rounds of interviews, one take-home project, then the req was cancelled.", 5]
+    ]},
+    life: { tag: "Life", cls: "t-life", list: [
+      ["New baby. Study hours: zero. Growth as a person: significant.", 12],
+      ["A parent got sick. Everything else waited, correctly.", 8],
+      ["Burnout. You took three months off and it was the right call.", 6],
+      ["You moved house. The boxes are still in the hall.", 3],
+      ["You got sick of it and took a break. This is allowed.", 4]
+    ]},
+    good: { tag: "Something worked", cls: "t-good", list: [
+      ["Someone in the field replied to your message and it changed everything.", -6],
+      ["You built one thing that actually worked and the right person noticed.", -5],
+      ["A colleague vouched for you. This beat every certificate you own.", -7],
+      ["You got an interview without meeting a single listed requirement, as is tradition.", -4],
+      ["A side project got attention and suddenly people answered your emails.", -5]
+    ]}
+  };
+
+  var WEIGHTS = ["tech","tech","ai","ai","ai","org","org","hiring","hiring","hiring","life","good"];
+
+  var HOUR_WORDS = [
+    [2, "Aspirational. This is the plan, not the reality."],
+    [5, "Realistic. This is the honest answer for most people."],
+    [10, "Committed. Your evenings belong to this now."],
+    [16, "You have no hobbies left."],
+    [25, "You have no relationships left. Please sleep."]
+  ];
+
+  var STAMPS = [
+    [15, "ON TRACK"], [60, "SLIPPED"], [140, "RESCOPED"], [300, "PIVOTED AGAIN"], [1e9, "SEE YOU IN THE NEXT LIFE"]
+  ];
+
+  var runs = 0, lastText = "";
+  function el(id) { return document.getElementById(id); }
+  function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+
+  function fmt(months) {
+    if (months < 1) { return "1 month"; }
+    if (months < 24) { return Math.round(months) + " months"; }
+    var y = months / 12;
+    if (y > 120) { return "heat death of the universe"; }
+    return y.toFixed(1) + " years";
+  }
+
+  function hoursMoved() {
+    var v = parseInt(el("ct-hours").value, 10);
+    el("ct-hours-out").textContent = v;
+    for (var i = 0; i < HOUR_WORDS.length; i++) {
+      if (v <= HOUR_WORDS[i][0]) { el("ct-hours-word").textContent = HOUR_WORDS[i][1]; return; }
+    }
+  }
+
+  function run(isRerun) {
+    if (isRerun) { runs++; } else { runs = 0; }
+
+    var needed = parseFloat(el("ct-to").value);
+    var weekly = parseInt(el("ct-hours").value, 10);
+    var lifeMult = parseFloat(el("ct-life").value);
+    var hope = el("ct-hope").value;
+    var age = parseInt(el("ct-age").value, 10) || 30;
+    var toName = el("ct-to").options[el("ct-to").selectedIndex].textContent;
+    var fromName = el("ct-from").value;
+
+    var effectiveWeekly = Math.max(0.5, weekly * lifeMult);
+    var naive = needed / (effectiveWeekly * 4.33);
+
+    /* how many quarters we simulate, and how mean we are, grows on each rerun */
+    var quarters = Math.max(4, Math.ceil(naive / 3)) + runs * 2;
+    if (quarters > 16) { quarters = 16; }
+    var hitChance = 0.5 + (runs * 0.08);
+    if (hope === "naive") { hitChance += 0.12; }
+    if (hope === "broken") { hitChance -= 0.05; }
+
+    var events = [], added = 0, aiHits = 0;
+    for (var q = 1; q <= quarters; q++) {
+      if (Math.random() > hitChance) { continue; }
+      var key = pick(WEIGHTS);
+      if (key === "good" && Math.random() > 0.55) { key = pick(["tech","ai","hiring"]); }
+      var ev = pick(EVENTS[key].list);
+      if (key === "ai") { aiHits++; }
+      added += ev[1];
+      events.push({ q: q, key: key, text: ev[0], delta: ev[1] });
+    }
+
+    var revised = Math.max(naive * 0.6, naive + added);
+    if (runs > 0) { revised = revised * (1 + runs * 0.18); }   /* recalculating never helps */
+    var creep = Math.round(((revised - naive) / naive) * 100);
+
+    el("ct-naive").textContent = fmt(naive);
+    el("ct-revised").textContent = fmt(revised);
+    el("ct-creep").textContent = (creep >= 0 ? "+" : "") + creep + "%";
+
+    var stamp = "SLIPPED";
+    for (var s = 0; s < STAMPS.length; s++) { if (creep <= STAMPS[s][0]) { stamp = STAMPS[s][1]; break; } }
+    if (creep < 0) { stamp = "SHIPPED IT"; }
+    el("ct-stamp").textContent = stamp;
+
+    var html = "";
+    if (!events.length) {
+      html = '<div class="c-ev t-good"><span class="c-ev-q">Q1</span><div class="c-ev-body">'
+           + '<span class="c-ev-tag">Suspiciously fine</span>'
+           + '<span class="c-ev-txt">Nothing went wrong. This has never happened to anyone. Hit recalculate and reality will correct itself.</span>'
+           + '</div></div>';
+    }
+    for (var e = 0; e < events.length; e++) {
+      var it = events[e], cat = EVENTS[it.key];
+      var d = (it.delta > 0 ? "+" : "") + it.delta + "m";
+      html += '<div class="c-ev ' + cat.cls + '">'
+            + '<span class="c-ev-q">Q' + it.q + '</span>'
+            + '<div class="c-ev-body"><span class="c-ev-tag">' + cat.tag + '</span>'
+            + '<span class="c-ev-txt">' + it.text + '</span></div>'
+            + '<span class="c-ev-delta">' + d + '</span></div>';
+    }
+    el("ct-events").innerHTML = html;
+
+    var renames = 1 + Math.floor(Math.random() * 3) + Math.floor(revised / 18);
+    var aiShare = Math.min(85, 18 + aiHits * 9 + Math.floor(Math.random() * 14));
+    var arrival = age + Math.round(revised / 12);
+    var stats = [
+      ["Route", fromName + " to " + toName.toLowerCase()],
+      ["Study hours needed", Math.round(needed).toLocaleString("en-US") + " hrs"],
+      ["Hours you actually get per week", effectiveWeekly.toFixed(1) + " hrs"],
+      ["Times the industry renamed your target role", renames],
+      ["Share of the role AI will handle by then", aiShare + "%"],
+      ["Times you recalculated hoping for better news", runs],
+      ["Your age on arrival", arrival + " - which is fine, by the way"]
+    ];
+    var sh = "";
+    for (var i = 0; i < stats.length; i++) {
+      sh += '<div class="c-stat"><span>' + stats[i][0] + '</span><span>' + stats[i][1] + '</span></div>';
+    }
+    el("ct-stats").innerHTML = sh;
+
+    el("ct-out").style.display = "block";
+
+    lastText = "CAREER TRANSITION TIMELINE\n"
+      + fromName + " -> " + toName + "\n"
+      + "Your estimate: " + fmt(naive) + "\n"
+      + "Revised estimate: " + fmt(revised) + "\n"
+      + "Scope creep: " + (creep >= 0 ? "+" : "") + creep + "%\n"
+      + "Verdict: " + stamp + "\n\n"
+      + events.map(function (x) { return "Q" + x.q + " [" + EVENTS[x.key].tag + "] " + x.text + " (" + (x.delta > 0 ? "+" : "") + x.delta + "m)"; }).join("\n")
+      + "\n\nAge on arrival: " + arrival;
+  }
+
+  function copy(btn) {
+    if (!lastText) { run(false); }
+    var done = function () {
+      btn.textContent = "Copied";
+      setTimeout(function () { btn.innerHTML = "&#128203; Copy result"; }, 1500);
+    };
+    var fallback = function () {
+      var t = document.createElement("textarea");
+      t.value = lastText; t.style.position = "fixed"; t.style.opacity = "0";
+      document.body.appendChild(t); t.select();
+      try { document.execCommand("copy"); done(); } catch (err) {}
+      document.body.removeChild(t);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(lastText).then(done, fallback);
+    } else { fallback(); }
+  }
+
+  function bind(attempt) {
+    attempt = attempt || 0;
+    var root = document.getElementById("ctt");
+    var nodes = root ? root.querySelectorAll("[data-ct]") : [];
+    if (!nodes.length) {
+      if (attempt < 40) { setTimeout(function () { bind(attempt + 1); }, 150); }
+      return;
+    }
+    for (var i = 0; i < nodes.length; i++) {
+      (function (node) {
+        if (node.getAttribute("data-ct-bound")) { return; }
+        node.setAttribute("data-ct-bound", "1");
+        var what = node.getAttribute("data-ct");
+        if (what === "hours") { node.addEventListener("input", hoursMoved); }
+        else if (what === "run") { node.addEventListener("click", function () { run(false); }); }
+        else if (what === "again") { node.addEventListener("click", function () { run(true); }); }
+        else if (what === "copy") { node.addEventListener("click", function () { copy(node); }); }
+      })(nodes[i]);
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", function () { bind(0); });
+  }
+  bind(0);
+
+  /* report height so the embedding page can resize the frame if it ever wants to */
+  (function () {
+    function send() {
+      var r = document.getElementById("ctt");
+      if (!r || !window.parent) { return; }
+      window.parent.postMessage({ ctHeight: Math.ceil(r.getBoundingClientRect().height + 40) }, "*");
+    }
+    window.addEventListener("load", send);
+    var root = document.getElementById("ctt");
+    if (root && window.MutationObserver) {
+      new MutationObserver(send).observe(root, { subtree: true, attributes: true, childList: true });
+    }
+  })();
+
+})();
+</script>
+</body>
+</html>
