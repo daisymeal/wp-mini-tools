@@ -1,0 +1,310 @@
+<!-- ===== CERTIFICATION COST CALCULATOR (BROKE EDITION) v4 ===== -->
+<style>
+  #ccc-v3 {
+    all: initial; font-family: 'Quicksand', 'Segoe UI', system-ui, sans-serif;
+    background: linear-gradient(165deg,#FFF4F8 0%,#EFE7FB 100%);
+    padding: 34px; border-radius: 26px; max-width: 780px; margin: 40px auto;
+    border: 1px solid #F7DDE9; box-shadow: 0 20px 60px rgba(200,150,180,0.18);
+    color: #4E3350; display: block; position: relative; z-index: 2147483647;
+  }
+  #ccc-v3 * { box-sizing: border-box; font-family: inherit; }
+  #ccc-v3 .cc-eyebrow { display:block; margin:0 0 8px 0; font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:#E7699B; font-weight:700; text-align:center; }
+  #ccc-v3 .cc-title { font-family: Georgia, 'Fraunces', serif; display:block; margin:0 0 6px 0; font-size:34px; line-height:1.1; font-weight:800; color:#4E3350; text-align:center; }
+  #ccc-v3 .cc-sub { display:block; margin:0 0 24px 0; font-size:15px; color:#8C7A90; text-align:center; line-height:1.5; }
+  #ccc-v3 .cc-card { background:#fff; padding:24px; border-radius:20px; border:1px solid #F2D3E1; box-shadow:0 8px 22px rgba(200,150,180,.14); margin-bottom:18px; }
+  #ccc-v3 .cc-label { font-size:11px; font-weight:700; color:#8C7A90; text-transform:uppercase; margin-bottom:8px; display:block; letter-spacing:1px; }
+  #ccc-v3 .cc-label b { color:#E7699B; }
+  #ccc-v3 .cc-input, #ccc-v3 .cc-select {
+    width:100%; padding:12px; background:#FFF4F8; border:2px solid #F2D3E1; border-radius:12px;
+    font-size:14px; color:#4E3350; margin-bottom:15px; display:block; transition:.2s; appearance:none; -webkit-appearance:none;
+  }
+  #ccc-v3 .cc-input:focus, #ccc-v3 .cc-select:focus { border-color:#E7699B; background:#fff; outline:none; }
+  #ccc-v3 .cc-range { width:100%; accent-color:#E7699B; margin:4px 0 6px 0; display:block; }
+  #ccc-v3 .cc-hint { display:block; font-size:12.5px; color:#8C7A90; font-style:italic; margin-bottom:10px; }
+  #ccc-v3 .cc-two { display:flex; gap:12px; flex-wrap:wrap; }
+  #ccc-v3 .cc-two > div { flex:1 1 200px; }
+  #ccc-v3 .cc-actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:6px; }
+  #ccc-v3 .cc-btn { flex:1 1 150px; padding:14px; font-weight:700; border:none; border-radius:999px; cursor:pointer; font-size:13.5px; transition:.2s; font-family:inherit; }
+  #ccc-v3 .cc-primary { background:#E7699B; color:#fff; box-shadow:0 6px 14px rgba(231,105,155,.32); }
+  #ccc-v3 .cc-primary:hover { background:#d9528a; transform:translateY(-2px); }
+  #ccc-v3 .cc-secondary { background:#fff; color:#4E3350; border:1.5px solid #F2D3E1; }
+  #ccc-v3 .cc-secondary:hover { background:#FFF4F8; transform:translateY(-2px); }
+  #ccc-v3 .cc-status { display:block; margin:0 0 14px 0; padding:10px 14px; border-radius:12px; background:#FDECEF; border:1px solid #F5C2CE; color:#B23A5C; font-size:12.5px; text-align:center; }
+  #ccc-v3 .cc-receipt { position:relative; background:#fff; margin-top:20px; padding:30px 24px 22px; font-size:13.5px; line-height:1.6;
+    border-radius:16px; border:2px dashed #F2D3E1; box-shadow:0 10px 26px rgba(200,150,180,.2); display:none; }
+  #ccc-v3 .cc-r-top { font-family:Georgia,serif; margin:0; text-align:center; font-weight:800; letter-spacing:.12em; font-size:14px; color:#4E3350; }
+  #ccc-v3 .cc-r-meta { margin:4px 0 12px 0; text-align:center; font-size:11.5px; color:#8C7A90; }
+  #ccc-v3 .cc-r-rule { border-top:1.5px dotted #F2D3E1; margin:11px 0; }
+  #ccc-v3 .cc-r-line { display:flex; justify-content:space-between; gap:12px; padding:3px 0; }
+  #ccc-v3 .cc-r-line span:last-child { white-space:nowrap; font-weight:600; }
+  #ccc-v3 .cc-r-total { font-weight:800; font-size:16px; color:#E7699B; }
+  #ccc-v3 .cc-r-verdict { margin:10px 0; font-weight:700; color:#4E3350; }
+  #ccc-v3 .cc-r-cope { margin:6px 0 14px 0; color:#8C7A90; }
+  #ccc-v3 .cc-r-foot { margin:0; text-align:center; font-size:11.5px; color:#8C7A90; letter-spacing:.05em; }
+  #ccc-v3 .cc-stamp { position:absolute; top:16px; right:14px; transform:rotate(-12deg); border:3px double #E7699B; color:#E7699B;
+    padding:5px 12px; border-radius:8px; font-weight:800; letter-spacing:.08em; font-size:15px; background:rgba(255,255,255,.75); }
+  #ccc-v3 .cc-note { display:block; margin:16px 4px 0 4px; font-size:11.5px; color:#8C7A90; text-align:center; line-height:1.5; }
+  @media(max-width:640px){ #ccc-v3{ padding:20px; margin:24px auto; } #ccc-v3 .cc-title{ font-size:26px; } #ccc-v3 .cc-stamp{ font-size:12px; } }
+</style>
+
+<div id="ccc-v3">
+
+  <span class="cc-eyebrow">satire tool &middot; runs in your browser &middot; nothing is saved</span>
+  <span class="cc-title">Certification Cost Calculator</span>
+  <span class="cc-sub">Broke edition. Pick the cert you keep re-opening at 2am. We will tell you when you can afford it. &#127872;</span>
+
+  <span class="cc-status" id="cc-status">Diagnostic: buttons not wired yet. If this line is still here after the page loads, the script was blocked.</span>
+
+  <div class="cc-card">
+    <div class="cc-two">
+      <div style="flex:2 1 260px;">
+        <label class="cc-label" for="cc-cert">Cert you are pretending to save for</label>
+        <select class="cc-select" id="cc-cert">
+          <optgroup label="Cybersecurity - the wallet destroyers">
+            <option value="30000|479|Read every SANS Reading Room paper for free and call yourself self-taught elite." selected>GIAC GSE (the final boss)</option>
+            <option value="10500|0|A Windows internals book and one very long weekend. Same pain, no invoice.">OffSec OSEE / EXP-401</option>
+            <option value="10000|479|The webcasts and cheat sheet posters are free. The 10k part is the hotel breakfast.">SANS course + GIAC attempt (any)</option>
+            <option value="8500|0|Three years of Hack The Box still costs less. Suffer there instead.">OffSec OSCE3 (OSED+OSEP+OSWE)</option>
+            <option value="3500|150|Write a real report for a free CTF box. Nobody reads either one.">CREST CCT (INF/APP)</option>
+            <option value="3400|100|Learn nmap properly. That is most of the syllabus, honestly.">EC-Council CEH (with training)</option>
+            <option value="2749|0|PortSwigger Academy plus TryHackMe. Try harder, pay less.">OffSec OSCP (Learn One)</option>
+            <option value="2600|0|GNS3 and EVE-NG are free. Your electricity bill is not.">CCIE Security (lab + written)</option>
+            <option value="2200|135|Free mind maps and quiet confidence in meetings.">ISC2 CISSP (exam + bootcamp)</option>
+            <option value="1500|135|Skim the NIST CSF for free and start saying risk appetite out loud.">ISACA CISM / CISA</option>
+            <option value="600|75|You already know this one. Close the tab.">CompTIA SecurityX (CASP+)</option>
+            <option value="500|0|Priced like a human being. No cope needed, go book it.">Zero-Point Security CRTO</option>
+          </optgroup>
+          <optgroup label="AI certifications - the new expensive">
+            <option value="12000|0|OpenCourseWare. Same lecturers, no badge, no debt.">Big-name university AI programme</option>
+            <option value="5000|0|Build one thing that works. Beats a certificate about building things.">Vendor AI Architect bootcamp</option>
+            <option value="1100|275|Read the EU AI Act yourself. Free, public, equally boring.">IAPP AIGP (AI governance)</option>
+            <option value="900|135|The OWASP Top 10 for LLMs. Free, shorter, more useful.">ISACA AAISM (AI security mgmt)</option>
+            <option value="400|0|The free DLI courses exist. Spend the rest on noodles.">NVIDIA NCP (professional tier)</option>
+            <option value="300|0|Free tier, one weekend, and the official exam guide PDF.">AWS ML Engineer / Security Specialty</option>
+            <option value="200|0|Free lab credits during any Google event, if you are quick.">Google Cloud Professional ML Engineer</option>
+            <option value="165|0|Microsoft Learn is free and is literally the exam content.">Microsoft Azure AI-102</option>
+          </optgroup>
+          <optgroup label="Bonus round">
+            <option value="96000|2000|Therapy. Cheaper, and it addresses the actual problem.">All of the above, obviously</option>
+            <option value="0|850|None. This is a subscription to your own past decisions.">Renewal fees, forever</option>
+          </optgroup>
+        </select>
+      </div>
+      <div style="flex:1 1 130px;">
+        <label class="cc-label" for="cc-cur">Currency</label>
+        <select class="cc-select" id="cc-cur">
+          <option value="1|0.4|$" selected>USD</option>
+          <option value="4.4|1.6|RM">MYR</option>
+          <option value="25000|6000|&#8363;">VND</option>
+          <option value="1.32|1.2|S$">SGD</option>
+          <option value="0.92|0.6|&euro;">EUR</option>
+          <option value="86|15|&#8377;">INR</option>
+          <option value="57|18|&#8369;">PHP</option>
+          <option value="0.78|0.5|&pound;">GBP</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="cc-two">
+      <div>
+        <label class="cc-label" for="cc-sal">Monthly salary (be honest bestie)</label>
+        <input type="number" class="cc-input" id="cc-sal" value="5000" min="0" step="100" inputmode="numeric">
+      </div>
+      <div>
+        <label class="cc-label" for="cc-pay">Who is paying</label>
+        <select class="cc-select" id="cc-pay">
+          <option value="1">Me, alone, crying</option>
+          <option value="0.5">Company (50%, after 3 approvals)</option>
+          <option value="0.15">Company (they found budget)</option>
+          <option value="1.25">Me + the retake fee</option>
+        </select>
+      </div>
+    </div>
+
+    <label class="cc-label" for="cc-rate">What is left after rent, food and Shopee &mdash; <b id="cc-rate-out">5%</b></label>
+    <input type="range" class="cc-range" id="cc-rate" min="1" max="40" value="5" data-cc="rate">
+    <span class="cc-hint" id="cc-rate-word">Realistic.</span>
+
+    <div class="cc-actions">
+      <button type="button" class="cc-btn cc-primary" data-cc="run">Print the damage &#10024;</button>
+      <button type="button" class="cc-btn cc-secondary" data-cc="random">&#127922; Random cert</button>
+      <button type="button" class="cc-btn cc-secondary" data-cc="copy">&#128203; Copy receipt</button>
+    </div>
+  </div>
+
+  <div class="cc-receipt" id="cc-receipt">
+    <div class="cc-stamp" id="cc-stamp">DENIED</div>
+    <p class="cc-r-top">CERTIFICATION INVOICE</p>
+    <p class="cc-r-meta" id="cc-r-meta"></p>
+    <div class="cc-r-rule"></div>
+    <div id="cc-lines"></div>
+    <div class="cc-r-rule"></div>
+    <div class="cc-r-line cc-r-total"><span>TOTAL DAMAGE</span><span id="cc-total"></span></div>
+    <div class="cc-r-line"><span>Time to afford</span><span id="cc-years"></span></div>
+    <div class="cc-r-line"><span>Priced in instant noodles</span><span id="cc-noodles"></span></div>
+    <div class="cc-r-rule"></div>
+    <p class="cc-r-verdict" id="cc-verdict"></p>
+    <p class="cc-r-cope"><b>Free substitute:</b> <span id="cc-cope"></span></p>
+    <p class="cc-r-foot">no refunds &middot; no sympathy &middot; prices keep going up<br>&hearts; thank you come again &hearts;</p>
+  </div>
+
+  <span class="cc-note">Satire, not financial advice. Prices are approximate &mdash; vendors stack training, taxes, membership dues and renewal fees on top. Check the official site before you cry.</span>
+</div>
+
+<script>
+window.CCC3 = (function () {
+
+  var RATE_WORDS = [
+    [3, "Aspirational."],
+    [8, "Realistic."],
+    [15, "You cook at home. Respect."],
+    [25, "Suspicious. Do you pay rent?"],
+    [100, "You live with your parents, do you not."]
+  ];
+
+  var lastText = "";
+
+  function el(id) { return document.getElementById(id); }
+
+  function bind(attempt) {
+    attempt = attempt || 0;
+    var root = document.getElementById("ccc-v3");
+    if (!root) {
+      if (attempt < 40) { setTimeout(function () { bind(attempt + 1); }, 150); }
+      return;
+    }
+    var nodes = root.querySelectorAll("[data-cc]");
+    if (!nodes.length) {
+      if (attempt < 40) { setTimeout(function () { bind(attempt + 1); }, 150); }
+      return;
+    }
+    for (var i = 0; i < nodes.length; i++) {
+      (function (node) {
+        var what = node.getAttribute("data-cc");
+        if (node.getAttribute("data-cc-bound")) { return; }
+        node.setAttribute("data-cc-bound", "1");
+        if (what === "rate") { node.addEventListener("input", rateMoved); }
+        else if (what === "run") { node.addEventListener("click", function () { run(); }); }
+        else if (what === "random") { node.addEventListener("click", function () { random(); }); }
+        else if (what === "copy") { node.addEventListener("click", function () { copy(node); }); }
+      })(nodes[i]);
+    }
+    var s = el("cc-status");
+    if (s) { s.style.display = "none"; }
+  }
+
+  function rateMoved() {
+    var v = parseInt(el("cc-rate").value, 10);
+    el("cc-rate-out").textContent = v + "%";
+    for (var i = 0; i < RATE_WORDS.length; i++) {
+      if (v <= RATE_WORDS[i][0]) { el("cc-rate-word").textContent = RATE_WORDS[i][1]; return; }
+    }
+  }
+
+  function money(v, sym) { return sym + Math.round(v).toLocaleString("en-US"); }
+
+  function run() {
+    var certOpt = el("cc-cert").options[el("cc-cert").selectedIndex];
+    var certBits = certOpt.value.split("|");
+    var certName = certOpt.textContent;
+    var usd = parseFloat(certBits[0]);
+    var ren = parseFloat(certBits[1]);
+    var cope = certBits[2];
+
+    var curOpt = el("cc-cur").options[el("cc-cur").selectedIndex];
+    var curBits = curOpt.value.split("|");
+    var rate = parseFloat(curBits[0]);
+    var noodlePrice = parseFloat(curBits[1]);
+    var sym = curBits[2];
+
+    var payer = parseFloat(el("cc-pay").value) || 1;
+    var salary = Math.max(0, parseFloat(el("cc-sal").value) || 0);
+    var save = (parseInt(el("cc-rate").value, 10) || 1) / 100;
+
+    var exam = usd * rate * payer;
+    var renew = ren * rate * 3;
+    var total = exam + renew;
+    var monthly = salary * save;
+    var months = monthly > 0 ? total / monthly : Infinity;
+    var years = months / 12;
+
+    var lines = [
+      ["Course / exam fee", money(exam, sym)],
+      ["3 years of renewal fees", money(renew, sym)],
+      ["Dignity", sym + "0 (already spent)"]
+    ];
+    var html = "";
+    for (var i = 0; i < lines.length; i++) {
+      html += '<div class="cc-r-line"><span>' + lines[i][0] + '</span><span>' + lines[i][1] + '</span></div>';
+    }
+    el("cc-lines").innerHTML = html;
+    el("cc-total").textContent = money(total, sym);
+
+    var yt;
+    if (!isFinite(years)) { yt = "never (you saved nothing)"; }
+    else if (years < 1) { yt = Math.max(1, Math.round(months)) + " months"; }
+    else if (years < 50) { yt = years.toFixed(1) + " years"; }
+    else { yt = "several human lifetimes"; }
+    el("cc-years").textContent = yt;
+
+    var noodles = Math.round(total / noodlePrice).toLocaleString("en-US") + " packs";
+    el("cc-noodles").textContent = noodles;
+
+    var stamp, verdict;
+    if (years < 0.25) { stamp = "APPROVED"; verdict = "Wait, you can actually afford this? Book it before you buy another keyboard."; }
+    else if (years < 1) { stamp = "PENDING"; verdict = "Under a year of eating sadness. Survivable. Ask your manager first, they love saying next quarter."; }
+    else if (years < 4) { stamp = "DENIED"; verdict = "A multi-year commitment for a PDF and a LinkedIn badge. Think about it. Then think again."; }
+    else if (isFinite(years)) { stamp = "LOL"; verdict = "At this rate the exam will be retired, replaced and retired again before you sit it."; }
+    else { stamp = "VOID"; verdict = "Your savings rate suggests you are funded entirely by vibes. Bold."; }
+
+    el("cc-stamp").textContent = stamp;
+    el("cc-verdict").textContent = verdict;
+    el("cc-cope").textContent = cope;
+
+    var d = new Date();
+    el("cc-r-meta").textContent = certName + " - " + d.toISOString().slice(0, 10) + " - REF #" + Math.random().toString(36).slice(2, 8).toUpperCase();
+    el("cc-receipt").style.display = "block";
+
+    lastText = "CERTIFICATION INVOICE\n" + certName + "\n"
+      + lines[0][0] + ": " + lines[0][1] + "\n"
+      + lines[1][0] + ": " + lines[1][1] + "\n"
+      + lines[2][0] + ": " + lines[2][1] + "\n"
+      + "TOTAL DAMAGE: " + money(total, sym) + "\n"
+      + "Time to afford: " + yt + "\n"
+      + "In instant noodles: " + noodles + "\n"
+      + stamp + " - " + verdict + "\n"
+      + "Free substitute: " + cope;
+  }
+
+  function random() {
+    var sel = el("cc-cert");
+    sel.selectedIndex = Math.floor(Math.random() * sel.options.length);
+    run();
+  }
+
+  function copy(btn) {
+    if (!lastText) { run(); }
+    var done = function () {
+      btn.textContent = "Copied";
+      setTimeout(function () { btn.innerHTML = "&#128203; Copy receipt"; }, 1500);
+    };
+    var fallback = function () {
+      var t = document.createElement("textarea");
+      t.value = lastText; t.style.position = "fixed"; t.style.opacity = "0";
+      document.body.appendChild(t); t.select();
+      try { document.execCommand("copy"); done(); } catch (e) {}
+      document.body.removeChild(t);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(lastText).then(done, fallback);
+    } else { fallback(); }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", function () { bind(0); });
+  }
+  bind(0);
+  return { run: run, random: random, copy: copy, rateMoved: rateMoved, bind: bind };
+})();
+</script>
+<!-- ===== end embed ===== -->
