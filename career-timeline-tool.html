@@ -112,27 +112,92 @@
       <div>
         <label class="c-label" for="ct-from">Escaping from</label>
         <select id="ct-from">
-          <option value="IC design">IC / chip design</option>
-          <option value="verification">Design verification</option>
-          <option value="firmware">Firmware / embedded</option>
-          <option value="IT support">IT support</option>
-          <option value="QA">QA / test</option>
-          <option value="data analysis">Data analysis</option>
-          <option value="teaching">Teaching</option>
-          <option value="something adjacent">Something adjacent I do not explain at parties</option>
+          <optgroup label="Silicon and hardware">
+            <option value="IC design">IC / chip design</option>
+            <option value="design verification">Design verification (UVM survivor)</option>
+            <option value="physical design">Physical design / backend</option>
+            <option value="analog design">Analog design (the dark arts)</option>
+            <option value="memory design">Memory circuit design</option>
+            <option value="firmware">Firmware / embedded</option>
+            <option value="hardware validation">Post-silicon validation</option>
+            <option value="FAE work">Field applications engineering</option>
+            <option value="process engineering">Fab / process engineering</option>
+          </optgroup>
+          <optgroup label="Software and platform">
+            <option value="frontend work">Frontend (rewriting the same page)</option>
+            <option value="backend work">Backend</option>
+            <option value="QA">QA / manual testing</option>
+            <option value="devops">DevOps (three jobs, one title)</option>
+            <option value="mobile development">Mobile development</option>
+            <option value="the maintenance of one very old system">Maintaining one very old system</option>
+          </optgroup>
+          <optgroup label="IT and operations">
+            <option value="IT support">IT support / helpdesk</option>
+            <option value="sysadmin work">Sysadmin</option>
+            <option value="network engineering">Network engineering</option>
+            <option value="the NOC">NOC night shift</option>
+            <option value="technical support">Technical support (the escalation point)</option>
+          </optgroup>
+          <optgroup label="Data and analysis">
+            <option value="data analysis">Data analysis</option>
+            <option value="BI reporting">BI / dashboards nobody opens</option>
+            <option value="research">Academic research</option>
+            <option value="lab work">Lab work</option>
+          </optgroup>
+          <optgroup label="Somewhere else entirely">
+            <option value="teaching">Teaching</option>
+            <option value="accounting">Accounting / finance</option>
+            <option value="project management">Project management</option>
+            <option value="a healthcare job">Healthcare</option>
+            <option value="the military">Military / uniformed service</option>
+            <option value="retail">Retail or hospitality</option>
+            <option value="a job I do not explain at parties">Something I do not explain at parties</option>
+          </optgroup>
         </select>
       </div>
       <div>
         <label class="c-label" for="ct-to">Heading towards</label>
         <select id="ct-to">
-          <option value="380">Security engineering</option>
-          <option value="460">Penetration testing</option>
-          <option value="340">Detection engineering</option>
-          <option value="500">Hardware security</option>
-          <option value="420">Cloud engineering</option>
-          <option value="520">ML engineering</option>
-          <option value="440">AI security</option>
-          <option value="300">Anything that pays and is not this</option>
+          <optgroup label="Security - offensive">
+            <option value="460">Penetration testing</option>
+            <option value="520">Red teaming</option>
+            <option value="560">Exploit development</option>
+            <option value="500">Hardware security / side channels</option>
+            <option value="480">Reverse engineering</option>
+            <option value="440">Application security</option>
+          </optgroup>
+          <optgroup label="Security - defensive">
+            <option value="340">SOC analyst</option>
+            <option value="380">Detection engineering</option>
+            <option value="420">Incident response</option>
+            <option value="400">Threat intelligence</option>
+            <option value="360">Digital forensics</option>
+            <option value="380">Security engineering</option>
+            <option value="320">GRC (spreadsheets with consequences)</option>
+            <option value="440">Security architecture</option>
+          </optgroup>
+          <optgroup label="AI and data">
+            <option value="520">ML engineering</option>
+            <option value="440">AI security</option>
+            <option value="460">AI red teaming</option>
+            <option value="400">MLOps</option>
+            <option value="480">Data engineering</option>
+            <option value="380">AI governance (the paperwork frontier)</option>
+          </optgroup>
+          <optgroup label="Cloud and platform">
+            <option value="420">Cloud engineering</option>
+            <option value="440">Cloud security</option>
+            <option value="400">Platform / SRE</option>
+            <option value="360">Solutions architecture</option>
+          </optgroup>
+          <optgroup label="Adjacent escapes">
+            <option value="340">Developer relations</option>
+            <option value="300">Technical writing</option>
+            <option value="380">Product management</option>
+            <option value="320">Security awareness training</option>
+            <option value="300">Anything that pays and is not this</option>
+            <option value="280">Goat farming (fully serious)</option>
+          </optgroup>
         </select>
       </div>
     </div>
@@ -204,55 +269,69 @@
 
   var EVENTS = {
     tech: { tag: "Tech churn", cls: "t-tech", list: [
-      ["The framework your course was built on got deprecated.", 4],
-      ["Your target exam released a new version number. Syllabus reset.", 5],
-      ["Everything you learned about that tool is now called legacy. So are you.", 3],
-      ["The vendor got acquired, the product got renamed, your notes are archaeology.", 4],
-      ["Your 2024 course covers a UI that no longer exists.", 3],
-      ["The best practice you memorised is now the thing people write blog posts against.", 2]
+      ["The framework your course was built on got deprecated. The replacement will be deprecated too.", 4],
+      ["Your target exam released a new version number. Six months of notes, now historical fiction.", 5],
+      ["Everything you learned about that tool is now called legacy. So, quietly, are you.", 3],
+      ["The vendor got acquired, the product got renamed twice, and the docs redirect to a marketing page.", 4],
+      ["Your 2024 course covers a UI that no longer exists. The instructor has not logged in since.", 3],
+      ["The best practice you memorised is now the thing people write angry blog posts against.", 2],
+      ["You finally understood the thing, and the thing was replaced by a thing with a shorter name.", 4],
+      ["A breaking change in a dependency you did not know you had. You now know.", 3]
     ]},
     ai: { tag: "AI takeover", cls: "t-ai", list: [
-      ["AI now does most of the entry-level version of your target role. The target moved up a rung.", 7],
-      ["Every job posting added AI experience as a requirement. Nobody offers a way to get it.", 5],
+      ["AI now does most of the entry-level version of your target role. The bottom rung was removed while you climbed.", 7],
+      ["Every posting added AI experience as a requirement. Nobody has explained where you get it.", 5],
       ["A model did in nine seconds the task you spent a weekend learning. You are still learning it.", 4],
-      ["Your company announced an AI-first strategy. Nobody knows what this means, including the person who announced it.", 3],
+      ["Your company announced an AI-first strategy. Nobody knows what it means, including the announcer.", 3],
       ["Your target role now requires prompt engineering, a discipline younger than your laptop.", 4],
-      ["A new role opened cleaning up what the AI produced. Same job, worse hours.", 5],
-      ["Half the tutorials you were following were AI-generated and confidently wrong.", 4]
+      ["A new role opened cleaning up what the AI produced. Same job, worse hours, called innovation.", 5],
+      ["Half the tutorials you followed were AI-generated and confidently, beautifully wrong.", 4],
+      ["The job title you were training for got renamed to the same title with Agentic in front.", 3],
+      ["Someone automated your future job and put it on GitHub for free. It has 40,000 stars.", 6]
     ]},
     org: { tag: "Your employer", cls: "t-org", list: [
-      ["You got promoted in the field you are leaving. Golden handcuffs.", 8],
-      ["Reorg. You now report to someone who reports to you.", 4],
-      ["Training budget exists but needs manager approval, and your manager left.", 3],
+      ["You got promoted in the field you are leaving. The handcuffs are gold and they fit perfectly.", 8],
+      ["Reorg. You now report to someone who, on paper, still reports to you.", 4],
+      ["Training budget exists but needs manager approval, and your manager left in March.", 3],
       ["Your project slipped, so you slipped. Correlation is not causation but it is a pattern.", 5],
-      ["You became the only person who understands the legacy system. You may never leave.", 9],
-      ["Headcount freeze. The internal transfer you were promised is now a conversation for next year.", 6]
+      ["You became the only person who understands the legacy system. Escape is now a staffing risk.", 9],
+      ["Headcount freeze. The internal transfer you were promised is a conversation for next year, again.", 6],
+      ["A critical bug had your name on it from four years ago. You spent a quarter apologising to it.", 4],
+      ["They gave you a mentor. The mentor asked you for career advice.", 2]
     ]},
     hiring: { tag: "Hiring reality", cls: "t-hiring", list: [
       ["Junior roles require three years of experience in the thing you are transitioning into.", 6],
-      ["Your CV was rejected by a keyword filter for lacking a keyword that appears in your CV.", 3],
-      ["A recruiter asked why you are starting over at your age. You are not old.", 2],
+      ["Your CV was rejected by a keyword filter for lacking a keyword printed on your CV.", 3],
+      ["A recruiter asked why you are starting over at your age. You are not, in fact, old.", 2],
       ["They want your exact background, but with five years already doing the target job.", 5],
       ["The role was filled internally. It was posted for compliance reasons.", 4],
-      ["Four rounds of interviews, one take-home project, then the req was cancelled.", 5]
+      ["Four interview rounds, one unpaid take-home, then the req was cancelled by email.", 5],
+      ["The salary band was disclosed at the final stage. It was a pay cut of a size that felt personal.", 4],
+      ["You were told you are overqualified and underqualified in the same feedback message.", 3]
     ]},
     life: { tag: "Life", cls: "t-life", list: [
-      ["New baby. Study hours: zero. Growth as a person: significant.", 12],
-      ["A parent got sick. Everything else waited, correctly.", 8],
-      ["Burnout. You took three months off and it was the right call.", 6],
-      ["You moved house. The boxes are still in the hall.", 3],
-      ["You got sick of it and took a break. This is allowed.", 4]
+      ["New baby. Study hours: zero. Growth as a person: enormous. Sleep: theoretical.", 12],
+      ["A parent got sick. Everything else waited, correctly, without discussion.", 8],
+      ["Burnout. You took three months off and it was the right call and you know it.", 6],
+      ["You moved house. The boxes are in the hall. One of them contains your textbooks.", 3],
+      ["You got sick of it and stopped for a while. This is allowed and nobody is keeping score.", 4],
+      ["A wedding, two birthdays and a funeral. The quarter is gone and it was well spent.", 5],
+      ["Your laptop died on a Tuesday, taking your notes and your enthusiasm with it.", 3]
     ]},
     good: { tag: "Something worked", cls: "t-good", list: [
-      ["Someone in the field replied to your message and it changed everything.", -6],
-      ["You built one thing that actually worked and the right person noticed.", -5],
-      ["A colleague vouched for you. This beat every certificate you own.", -7],
-      ["You got an interview without meeting a single listed requirement, as is tradition.", -4],
-      ["A side project got attention and suddenly people answered your emails.", -5]
+      ["Someone senior in the field replied to your message and it changed the entire route.", -6],
+      ["You built one small thing that actually worked and the right person noticed it.", -5],
+      ["A colleague vouched for you in a room you were not in. This beat every certificate you own.", -7],
+      ["You got the interview without meeting a single listed requirement, as is tradition.", -4],
+      ["A side project got attention and suddenly people answered your emails within the hour.", -5],
+      ["You explained something clearly to a beginner and realised you were no longer one.", -3],
+      ["Someone offered to pay you for the skill you thought you were still learning.", -6]
     ]}
   };
 
-  var WEIGHTS = ["tech","tech","ai","ai","ai","org","org","hiring","hiring","hiring","life","good"];
+  /* every result contains at least one event from every pool - reality is thorough */
+  var ORDER = ["tech", "ai", "org", "hiring", "life", "good"];
+  var EXTRA_POOL = ["tech", "ai", "ai", "org", "hiring", "hiring", "life"];
 
   var HOUR_WORDS = [
     [2, "Aspirational. This is the plan, not the reality."],
@@ -308,14 +387,33 @@
     if (hope === "broken") { hitChance -= 0.05; }
 
     var events = [], added = 0, aiHits = 0;
-    for (var q = 1; q <= quarters; q++) {
-      if (Math.random() > hitChance) { continue; }
-      var key = pick(WEIGHTS);
-      if (key === "good" && Math.random() > 0.55) { key = pick(["tech","ai","hiring"]); }
-      var ev = pick(EVENTS[key].list);
+    var chosen = [];
+
+    /* one guaranteed hit from each pool, so no category ever goes unrepresented */
+    for (var c = 0; c < ORDER.length; c++) { chosen.push(ORDER[c]); }
+
+    /* extras scale with how long the plan is and how many times you have refused to accept it */
+    var extras = Math.min(6, Math.floor(naive / 9) + runs + (hope === "naive" ? 2 : 0));
+    for (var x = 0; x < extras; x++) { chosen.push(pick(EXTRA_POOL)); }
+
+    /* spread them across the quarters, in order, never two in the same slot */
+    var span = Math.max(chosen.length, quarters);
+    var slots = [];
+    for (var q = 1; q <= span; q++) { slots.push(q); }
+    for (var sh = slots.length - 1; sh > 0; sh--) {
+      var j = Math.floor(Math.random() * (sh + 1));
+      var tmp = slots[sh]; slots[sh] = slots[j]; slots[j] = tmp;
+    }
+    slots = slots.slice(0, chosen.length).sort(function (a, b) { return a - b; });
+
+    var usedText = {};
+    for (var k = 0; k < chosen.length; k++) {
+      var key = chosen[k], ev = pick(EVENTS[key].list), guard = 0;
+      while (usedText[ev[0]] && guard < 8) { ev = pick(EVENTS[key].list); guard++; }
+      usedText[ev[0]] = 1;
       if (key === "ai") { aiHits++; }
       added += ev[1];
-      events.push({ q: q, key: key, text: ev[0], delta: ev[1] });
+      events.push({ q: slots[k], key: key, text: ev[0], delta: ev[1] });
     }
 
     var revised = Math.max(naive * 0.6, naive + added);
@@ -332,12 +430,6 @@
     el("ct-stamp").textContent = stamp;
 
     var html = "";
-    if (!events.length) {
-      html = '<div class="c-ev t-good"><span class="c-ev-q">Q1</span><div class="c-ev-body">'
-           + '<span class="c-ev-tag">Suspiciously fine</span>'
-           + '<span class="c-ev-txt">Nothing went wrong. This has never happened to anyone. Hit recalculate and reality will correct itself.</span>'
-           + '</div></div>';
-    }
     for (var e = 0; e < events.length; e++) {
       var it = events[e], cat = EVENTS[it.key];
       var d = (it.delta > 0 ? "+" : "") + it.delta + "m";
