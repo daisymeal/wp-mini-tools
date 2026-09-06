@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="description" content="Satirical STRIDE threat model generator for mundane daily activities.">
+<title>Threat Model for Everyone</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Quicksand:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  html, body { margin:0; padding:0; background:transparent; }
+
+  #stm {
+    all: initial;
+    font-family: 'Quicksand', 'Segoe UI', system-ui, sans-serif;
+    display: block; position: relative; box-sizing: border-box;
+    max-width: 860px; margin: 0 auto; padding: 34px;
+    color: #40364F; line-height: 1.6;
+    background: linear-gradient(150deg, #F0F6FF 0%, #F6F0FC 45%, #FFF1F6 100%);
+    border: 1px solid #E9E3F2; border-radius: 28px;
+    box-shadow: 0 20px 60px rgba(140,140,190,0.15);
+  }
+  #stm * { box-sizing: border-box; font-family: inherit; }
+
+  #stm .c-eyebrow { display:block; text-align:center; font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:#7FB6E8; font-weight:700; margin:0 0 8px; }
+  #stm .c-title { font-family:Georgia,'Fraunces',serif; display:block; text-align:center; font-size:34px; line-height:1.1; font-weight:800; margin:0 0 8px; color:#40364F; }
+  #stm .c-sub { display:block; text-align:center; font-size:14.5px; color:#8A7E96; margin:0 0 26px; }
+
+  #stm .c-card { background:#fff; border:1px solid #ECE6F3; border-radius:22px; padding:22px; margin-bottom:16px; box-shadow:0 8px 22px rgba(140,140,190,.10); }
+  #stm .c-label { display:block; font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:#8A7E96; margin-bottom:8px; }
+
+  #stm input[type=text] {
+    width:100%; padding:13px 14px; font-size:15px; color:#40364F;
+    background:#FAF8FD; border:2px solid #ECE6F3; border-radius:14px;
+    margin-bottom:14px; display:block; transition:.2s;
+  }
+  #stm input[type=text]:focus { border-color:#7FB6E8; background:#fff; outline:none; }
+
+  #stm .c-chips { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+  #stm .c-chip { font-size:12.5px; font-weight:700; color:#40364F; background:#F3EFFA; border:1.5px solid #ECE6F3; border-radius:999px; padding:7px 14px; cursor:pointer; transition:.15s; }
+  #stm .c-chip:hover { background:#EDE6FA; transform:translateY(-1px); }
+
+  #stm .c-tone { display:flex; gap:8px; margin-bottom:16px; }
+  #stm .c-tone button { flex:1; padding:10px; font-size:12.5px; font-weight:700; border-radius:12px; border:1.5px solid #ECE6F3; background:#FAF8FD; color:#8A7E96; cursor:pointer; transition:.15s; }
+  #stm .c-tone button.active { background:#40364F; color:#fff; border-color:#40364F; }
+
+  #stm .c-actions { display:flex; gap:10px; flex-wrap:wrap; }
+  #stm button.c-btn { flex:1 1 150px; padding:14px; font-size:13.5px; font-weight:700; border:none; border-radius:999px; cursor:pointer; transition:.2s; }
+  #stm .c-primary { background:#40364F; color:#fff; box-shadow:0 6px 16px rgba(64,54,79,.28); }
+  #stm .c-primary:hover { background:#2f273b; transform:translateY(-2px); }
+  #stm .c-secondary { background:#fff; color:#40364F; border:1.5px solid #ECE6F3; }
+  #stm .c-secondary:hover { background:#FAF8FD; transform:translateY(-2px); }
+
+  #stm .c-out { display:none; margin-top:4px; }
+  #stm .c-out-head { text-align:center; margin-bottom:18px; }
+  #stm .c-out-eyebrow { font-family:'Space Mono',monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:#8A7E96; }
+  #stm .c-out-title { font-family:Georgia,'Fraunces',serif; font-size:22px; font-weight:800; color:#40364F; }
+
+  #stm .c-row { display:flex; gap:14px; align-items:flex-start; border-radius:16px; padding:15px 16px; margin-bottom:10px; }
+  #stm .c-row-tag { flex:0 0 auto; font-size:10px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:#fff; border-radius:8px; padding:5px 9px; white-space:nowrap; margin-top:1px; }
+  #stm .c-row-body { flex:1 1 auto; min-width:0; }
+  #stm .c-row-threat { display:block; font-size:14.5px; color:#40364F; margin-bottom:8px; }
+  #stm .c-row-meta { display:flex; gap:16px; flex-wrap:wrap; font-family:'Space Mono',monospace; font-size:11px; color:#6E6478; }
+  #stm .c-row-meta b { color:#40364F; }
+
+  #stm .c-stamp-wrap { text-align:center; margin:22px 0 6px; }
+  #stm .c-stamp { display:inline-block; border:3px double #40364F; color:#40364F; padding:8px 20px; border-radius:10px; font-weight:800; letter-spacing:.1em; font-size:14px; font-family:'Space Mono',monospace; transform:rotate(-1.5deg); background:rgba(255,255,255,.7); }
+  #stm .c-verdict { text-align:center; font-size:14px; color:#5C5266; margin:10px 4px 0; }
+
+  #stm .c-note { display:block; text-align:center; font-size:11.5px; color:#8A7E96; margin-top:18px; }
+
+  @media(max-width:640px){
+    #stm { padding:20px; border-radius:22px; }
+    #stm .c-title { font-size:26px; }
+    #stm .c-row { flex-direction:column; }
+    #stm .c-row-tag { align-self:flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<div id="stm">
+
+  <span class="c-eyebrow">satire tool &middot; runs in your browser &middot; nothing is saved</span>
+  <span class="c-title">Threat Model for Everyone</span>
+  <span class="c-sub">Enter a mundane activity. Receive a full STRIDE risk assessment nobody asked for.</span>
+
+  <div class="c-card">
+    <label class="c-label" for="stm-activity">Activity being threat modelled</label>
+    <input type="text" id="stm-activity" placeholder="e.g. ordering coffee, joining a video call, going to the gym" value="ordering coffee">
+
+    <div class="c-chips" id="stm-chips"></div>
+
+    <label class="c-label">Tone</label>
+    <div class="c-tone" id="stm-tone">
+      <button type="button" class="active" data-tone="deadpan" data-stm="tone">Corporate Deadpan</button>
+      <button type="button" data-tone="unhinged" data-stm="tone">Unhinged</button>
+    </div>
+
+    <div class="c-tone" id="stm-mitm-toggle">
+      <button type="button" class="active" data-mitm="on" data-stm="mitm">&#128585; Include Man-in-the-Middle bonus row</button>
+      <button type="button" data-mitm="off" data-stm="mitm">Skip it</button>
+    </div>
+
+    <div class="c-actions">
+      <button type="button" class="c-btn c-primary" data-stm="run">Generate threat model &#128737;</button>
+      <button type="button" class="c-btn c-secondary" data-stm="rerun">&#128260; Re-run this one</button>
+      <button type="button" class="c-btn c-secondary" data-stm="copy">&#128203; Copy report</button>
+    </div>
+  </div>
+
+  <div class="c-out" id="stm-out">
+    <div class="c-out-head">
+      <div class="c-out-eyebrow">STRIDE RISK ASSESSMENT</div>
+      <div class="c-out-title" id="stm-out-title"></div>
+    </div>
+    <div id="stm-rows"></div>
+    <div class="c-stamp-wrap">
+      <span class="c-stamp" id="stm-stamp">RESIDUAL RISK: HIGH</span>
+    </div>
+    <p class="c-verdict" id="stm-verdict"></p>
+  </div>
+
+  <span class="c-note">Satire. Any resemblance to your actual Tuesday is a coincidence and also inevitable.</span>
+</div>
+
+<script>
+(function () {
+
+  var CATS = [
+    { key: "Spoofing", color: "#7FB6E8", soft: "#E6F1FC" },
+    { key: "Tampering", color: "#F5A97F", soft: "#FDEEE3" },
+    { key: "Repudiation", color: "#E9C46A", soft: "#FBF3DE" },
+    { key: "Information Disclosure", color: "#B49BE0", soft: "#F0E9FB" },
+    { key: "Denial of Service", color: "#EE8FB4", soft: "#FCE8F0" },
+    { key: "Elevation of Privilege", color: "#8FD3C4", soft: "#E6F7F3" }
+  ];
+
+  var MITM_CAT = { key: "Man-in-the-Middle", color: "#5C6BC0", soft: "#E8EAFB", bonus: true };
+
+  var PRESETS = [
+    "ordering coffee", "joining a video call", "commuting to work", "going to the gym",
+    "a group chat", "a first date", "a job interview", "online shopping",
+    "a shared work lunch", "splitting a bill",
+    "doing laundry", "walking the dog", "a team standup meeting", "grocery shopping",
+    "a family group chat", "moving apartments", "a potluck", "waiting for a delivery",
+    "a code review", "house hunting"
+  ];
+
+  /* 15 templates per category. {activity} is replaced with whatever the user typed. */
+  var TEMPLATES = {
+    "Spoofing": [
+      "Someone else answers to your name during {activity}, and everyone believes them.",
+      "Your usual order or setup for {activity} gets claimed by someone who says it's the same as always.",
+      "A stranger completes {activity} in your place and nobody double-checks.",
+      "Your account, badge, or seat is used by someone else during {activity}.",
+      "Someone mimics your exact behavior during {activity} closely enough that nobody notices the swap.",
+      "An automated system assumes you initiated {activity} when you did not.",
+      "A lookalike profile picture is enough to pass as you during {activity}.",
+      "Someone logs in as you for {activity} because your session was still open.",
+      "Your voice is close enough on a call that someone pretends to be you mid-{activity}.",
+      "A colleague RSVPs to {activity} using your name because it was easier.",
+      "Your order or delivery for {activity} gets picked up by someone who simply says they're you.",
+      "A bot account joins {activity} looking exactly enough like a real participant.",
+      "Someone forwards a message as if they were you, right before {activity} happens.",
+      "Two people show up claiming to be responsible for {activity}. Only one can be verified. Nobody verifies.",
+      "Your badge tap for {activity} is spoofed by someone walking closely enough behind you."
+    ],
+    "Tampering": [
+      "Something about {activity} gets quietly altered before you notice.",
+      "Someone modifies the plan for {activity} without telling you, then acts surprised you didn't know.",
+      "Your setup for {activity} gets improved by someone without permission.",
+      "A shared document related to {activity} was edited, and the edit history is suspiciously clean.",
+      "Someone swaps a small detail in {activity} and insists it was always like that.",
+      "The schedule for {activity} changes mid-way and only some people are told.",
+      "Your equipment for {activity} was borrowed and returned, slightly different than before.",
+      "Someone adds themselves to the credit for {activity} in the final report.",
+      "A key step of {activity} is skipped, then quietly marked as done anyway.",
+      "Materials for {activity} are substituted without disclosure.",
+      "Someone edits the group message about {activity} after you already replied to the original.",
+      "Your workspace for {activity} was rearranged overnight, deniably.",
+      "A setting is changed right before {activity}, breaking it in a way that looks accidental.",
+      "Someone tampers with the timeline of {activity} to make their delay look like yours.",
+      "Your draft for {activity} gets cleaned up into something you never approved."
+    ],
+    "Repudiation": [
+      "Someone denies ever agreeing to {activity}, despite the message thread saying otherwise.",
+      "Nobody admits to causing the delay in {activity}. The delay definitely happened.",
+      "You're told that's not what was said about {activity}, and no one can find proof either way.",
+      "A decision about {activity} is disputed after the fact, right when it becomes inconvenient.",
+      "Someone insists they completed their part of {activity}. They did not.",
+      "The person responsible for {activity} going wrong is, mysteriously, unavailable for comment.",
+      "Everyone remembers a different version of what happened during {activity}.",
+      "A commitment made before {activity} is quietly walked back with no acknowledgment.",
+      "Someone claims credit for {activity} going well. Blame stays unclaimed when it doesn't.",
+      "I never said that is said about something that was, in fact, said, during {activity}.",
+      "The receipt, log, or record for {activity} conveniently does not exist.",
+      "Two conflicting accounts of {activity} exist, and both are treated as equally valid.",
+      "Someone backdates their involvement in {activity} once it looks successful.",
+      "Whoever suggested {activity} is unreachable the moment it goes wrong.",
+      "A verbal agreement about {activity} turns out to have never been really agreed."
+    ],
+    "Information Disclosure": [
+      "Details about {activity} that were meant to stay private end up in a group chat.",
+      "A screen is shared during {activity} and it reveals far more than intended.",
+      "Your status or activity feed leaks that you're doing {activity} right now.",
+      "Someone reads a message about {activity} over your shoulder, uninvited.",
+      "A printed receipt or label from {activity} reveals more personal detail than necessary.",
+      "An autocomplete or autofill exposes something unrelated during {activity}.",
+      "A notification pops up mid-{activity}, visible to everyone nearby.",
+      "Metadata from {activity} reveals exactly when and where it happened, to someone who shouldn't know.",
+      "A reply-all during {activity} discloses something meant for one person.",
+      "Someone overhears a private conversation about {activity} through a thin wall or open mic.",
+      "Your calendar invite for {activity} is visible to people who were never supposed to see it.",
+      "A shared photo from {activity} accidentally includes something in the background it shouldn't.",
+      "The shared list or log for {activity} reveals more than participants expected.",
+      "A cached screen shows your history with {activity} to the next person on the device.",
+      "Someone forwards a private message about {activity}, just for context, to the wrong group."
+    ],
+    "Denial of Service": [
+      "{activity} simply cannot happen because the one resource it needed ran out.",
+      "A network, system, or queue fails at the exact moment {activity} needs it most.",
+      "Everyone shows up for {activity} and the venue, tool, or link does not.",
+      "The one person needed for {activity} is suddenly and completely unreachable.",
+      "{activity} is cancelled with zero advance notice.",
+      "Something breaks right before {activity}, and there is no backup plan.",
+      "Too many people try to do {activity} at once, and the whole thing grinds to a halt.",
+      "{activity} is technically still available, but so slow it might as well not be.",
+      "A required approval for {activity} is stuck with someone who is on leave.",
+      "The tool needed for {activity} updates itself at the worst possible moment.",
+      "{activity} is blocked by a single point of failure nobody thought to question.",
+      "Weather, traffic, or timing removes {activity} from the table entirely.",
+      "{activity} is double-booked, and only one version of it can actually happen.",
+      "A key file for {activity} won't open, and there is no other copy.",
+      "{activity} is paused indefinitely, pending a decision nobody is in a hurry to make."
+    ],
+    "Elevation of Privilege": [
+      "Someone with no real stake in {activity} ends up making all the decisions about it.",
+      "A minor helper role in {activity} quietly becomes the deciding vote.",
+      "Whoever speaks first during {activity} becomes the de facto authority on it.",
+      "Someone gains access to {activity} they were never supposed to have, and keeps it.",
+      "A temporary permission for {activity} is never revoked.",
+      "The person meant to observe {activity} ends up running it.",
+      "Someone escalates a small favor into permanent control over {activity}.",
+      "A guest account for {activity} somehow ends up with full admin rights.",
+      "Whoever set up {activity} becomes impossible to remove from it, structurally.",
+      "A junior participant in {activity} is handed responsibility nobody signed off on.",
+      "Someone exploits a scheduling gap to take charge of {activity} unopposed.",
+      "Access meant for one-time use in {activity} becomes standing access, forever.",
+      "The most confident person in the room ends up owning {activity}, regardless of expertise.",
+      "A shared login for {activity} is quietly used well beyond its intended scope.",
+      "Someone appoints themselves lead on {activity} in a reply-all nobody objected to."
+    ],
+    "Man-in-the-Middle": [
+      "A message about {activity} gets forwarded through three people before reaching its target, and each hop adds a slightly different meaning.",
+      "Someone reads the message about {activity} before you do and replies faster, so you look like you never saw it.",
+      "Someone relays what was decided about {activity} secondhand, and by the third relay it's a completely different instruction.",
+      "Your quick note about {activity}, meant for one person, somehow gets forwarded to everyone it was about.",
+      "Someone paraphrases your question about {activity} to the room, and the paraphrase is what actually gets answered.",
+      "A colleague summarizes {activity} for those who missed it, and quietly rewrites what was decided.",
+      "The person taking notes on {activity} is also the person most invested in one outcome. The notes reflect this.",
+      "Someone relays your feedback on {activity} to the person in charge, and 40 percent of what arrives is their opinion of your feedback.",
+      "The handoff for {activity} passes through someone who adds a modification nobody asked for.",
+      "A mutual contact just mentions what you said about {activity}, translated for maximum drama.",
+      "Someone screenshots a private conversation about {activity} and forwards it for context, stripped of all the actual context.",
+      "Your request about {activity} goes up the chain and comes back approved as a different version of itself.",
+      "An email thread about {activity} reaches five people before the original ask is even legible anymore.",
+      "An email about {activity} gets reply-all hijacked, and now the wrong audience is negotiating your original point.",
+      "Someone CC'd on the email chain for {activity} quietly starts making decisions as if they were the intended recipient.",
+      "Your email about {activity} sits in someone's inbox for three days, then gets forwarded onward with just a question mark.",
+      "An auto-forward rule silently copies every email about {activity} to someone who was never supposed to see them.",
+      "Someone replies to the email about {activity} from their phone, and the truncated one-line reply becomes the new official answer."
+    ]
+  };
+
+  var MITIGATIONS = [
+    "None. Accept risk.",
+    "None. Accept risk.",
+    "None. Accept risk.",
+    "None. Accept risk.",
+    "None. Accept risk.",
+    "Mandatory two-person verification for future occurrences.",
+    "File an incident report and forward to legal, just in case.",
+    "Requires executive sign-off before this is allowed to happen again.",
+    "Introduce a change-approval board for this specific event.",
+    "Schedule a retrospective. Invite everyone. Resolve nothing.",
+    "Draft a 40-page policy document. Nobody will read it.",
+    "Escalate to a steering committee that meets quarterly."
+  ];
+
+  var LIKELIHOOD = ["Low", "Medium", "Medium", "High", "High", "Certain"];
+
+  var DEADPAN_TAILS = ["", "", "", "Logged for the record.", "No further action planned.", "Consistent with prior incidents."];
+  var UNHINGED_TAILS = ["", "This will absolutely happen again.", "Nobody is okay after this.", "This is fine. This is not fine.", "Speak of this to no one.", "Frankly, deserved."];
+
+  function el(id) { return document.getElementById(id); }
+  function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+
+  function render(activityRaw, tone, includeMitm) {
+    var activity = (activityRaw || "this activity").trim().toLowerCase();
+    var categories = includeMitm ? CATS.concat([MITM_CAT]) : CATS;
+    var rows = [], total = 0;
+
+    for (var i = 0; i < categories.length; i++) {
+      var cat = categories[i];
+      var lineTpl = pick(TEMPLATES[cat.key]);
+      var line = lineTpl.split("{activity}").join(activity);
+      line = line.charAt(0).toUpperCase() + line.slice(1);
+
+      var tail = tone === "unhinged" ? pick(UNHINGED_TAILS) : pick(DEADPAN_TAILS);
+      if (tail) { line += " " + tail; }
+
+      var likelihood = pick(LIKELIHOOD);
+      var severity = (Math.random() * 8 + 1.2).toFixed(1);
+      total += parseFloat(severity);
+      var mitigation = pick(MITIGATIONS);
+
+      rows.push({ cat: cat, line: line, likelihood: likelihood, severity: severity, mitigation: mitigation });
+    }
+    return { rows: rows, avg: total / categories.length };
+  }
+
+  function verdictFor(avg, tone) {
+    if (avg < 4) {
+      return tone === "unhinged"
+        ? ["RESIDUAL RISK: LOW", "Suspicious. Nothing is ever actually this fine."]
+        : ["RESIDUAL RISK: LOW", "Statistically this will be fine. Statistically."];
+    }
+    if (avg < 6.5) {
+      return tone === "unhinged"
+        ? ["RESIDUAL RISK: MODERATE", "Proceed, but do not livestream it."]
+        : ["RESIDUAL RISK: MODERATE", "Recommend proceeding with standard caution."];
+    }
+    if (avg < 8.5) {
+      return tone === "unhinged"
+        ? ["RESIDUAL RISK: HIGH", "This was never going to go well. Proceed anyway."]
+        : ["RESIDUAL RISK: HIGH", "Recommend proceeding anyway. Avoidance is not a control."];
+    }
+    return tone === "unhinged"
+      ? ["RESIDUAL RISK: CRITICAL", "Everything about this is a mistake. Do it anyway."]
+      : ["RESIDUAL RISK: CRITICAL", "Full mitigation is not achievable. Proceed under advisement."];
+  }
+
+  var lastText = "", lastActivity = "", lastTone = "deadpan", includeMitm = true;
+
+  function run() {
+    var activity = el("stm-activity").value;
+    lastActivity = activity;
+    var result = render(activity, lastTone, includeMitm);
+    show(activity, result);
+  }
+
+  function rerun() {
+    if (!lastActivity) { run(); return; }
+    var result = render(lastActivity, lastTone, includeMitm);
+    show(lastActivity, result);
+  }
+
+  function show(activity, result) {
+    var displayName = (activity || "this activity").trim() || "this activity";
+    el("stm-out-title").textContent = displayName.charAt(0).toUpperCase() + displayName.slice(1);
+
+    var html = "";
+    for (var i = 0; i < result.rows.length; i++) {
+      var r = result.rows[i];
+      var bonusStyle = r.cat.bonus ? "border:2px dashed " + r.cat.color + ";" : "";
+      html += '<div class="c-row" style="background:' + r.cat.soft + ';' + bonusStyle + '">'
+            + '<span class="c-row-tag" style="background:' + r.cat.color + '">' + (r.cat.bonus ? "&#128585; " : "") + r.cat.key + '</span>'
+            + '<div class="c-row-body">'
+            + '<span class="c-row-threat">' + r.line + '</span>'
+            + '<div class="c-row-meta">'
+            + '<span>Likelihood: <b>' + r.likelihood + '</b></span>'
+            + '<span>Severity: <b>' + r.severity + '</b></span>'
+            + '<span>Mitigation: <b>' + r.mitigation + '</b></span>'
+            + '</div></div></div>';
+    }
+    el("stm-rows").innerHTML = html;
+
+    var v = verdictFor(result.avg, lastTone);
+    el("stm-stamp").textContent = v[0];
+    el("stm-verdict").textContent = v[1];
+    el("stm-out").style.display = "block";
+
+    lastText = "STRIDE RISK ASSESSMENT: " + el("stm-out-title").textContent + "\n\n"
+      + result.rows.map(function (r) {
+          return r.cat.key + "\n  Threat: " + r.line
+            + "\n  Likelihood: " + r.likelihood + "  Severity: " + r.severity + "  Mitigation: " + r.mitigation;
+        }).join("\n\n")
+      + "\n\n" + v[0] + " - " + v[1];
+  }
+
+  function copy(btn) {
+    if (!lastText) { run(); }
+    var done = function () {
+      btn.textContent = "Copied";
+      setTimeout(function () { btn.innerHTML = "&#128203; Copy report"; }, 1500);
+    };
+    var fallback = function () {
+      var t = document.createElement("textarea");
+      t.value = lastText; t.style.position = "fixed"; t.style.opacity = "0";
+      document.body.appendChild(t); t.select();
+      try { document.execCommand("copy"); done(); } catch (e) {}
+      document.body.removeChild(t);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(lastText).then(done, fallback);
+    } else { fallback(); }
+  }
+
+  function setupChips() {
+    var wrap = el("stm-chips");
+    var html = "";
+    for (var i = 0; i < PRESETS.length; i++) {
+      html += '<button type="button" class="c-chip" data-preset="' + PRESETS[i] + '">' + PRESETS[i] + '</button>';
+    }
+    wrap.innerHTML = html;
+  }
+
+  function bind(attempt) {
+    attempt = attempt || 0;
+    var root = document.getElementById("stm");
+    if (!root) { if (attempt < 40) { setTimeout(function () { bind(attempt + 1); }, 150); } return; }
+
+    setupChips();
+
+    var actionNodes = root.querySelectorAll("[data-stm]");
+    for (var i = 0; i < actionNodes.length; i++) {
+      (function (node) {
+        if (node.getAttribute("data-bound")) { return; }
+        node.setAttribute("data-bound", "1");
+        var what = node.getAttribute("data-stm");
+        if (what === "run") { node.addEventListener("click", run); }
+        else if (what === "rerun") { node.addEventListener("click", rerun); }
+        else if (what === "copy") { node.addEventListener("click", function () { copy(node); }); }
+        else if (what === "tone") {
+          node.addEventListener("click", function () {
+            var buttons = root.querySelectorAll('[data-stm="tone"]');
+            for (var b = 0; b < buttons.length; b++) { buttons[b].classList.remove("active"); }
+            node.classList.add("active");
+            lastTone = node.getAttribute("data-tone");
+          });
+        }
+        else if (what === "mitm") {
+          node.addEventListener("click", function () {
+            var buttons = root.querySelectorAll('[data-stm="mitm"]');
+            for (var b = 0; b < buttons.length; b++) { buttons[b].classList.remove("active"); }
+            node.classList.add("active");
+            includeMitm = node.getAttribute("data-mitm") === "on";
+          });
+        }
+      })(actionNodes[i]);
+    }
+
+    var chips = root.querySelectorAll(".c-chip");
+    for (var c = 0; c < chips.length; c++) {
+      chips[c].addEventListener("click", function () {
+        el("stm-activity").value = this.getAttribute("data-preset");
+        run();
+      });
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", function () { bind(0); });
+  }
+  bind(0);
+
+  (function () {
+    function send() {
+      var r = document.getElementById("stm");
+      if (!r || !window.parent) { return; }
+      window.parent.postMessage({ stmHeight: Math.ceil(r.getBoundingClientRect().height + 40) }, "*");
+    }
+    window.addEventListener("load", send);
+    var root = document.getElementById("stm");
+    if (root && window.MutationObserver) {
+      new MutationObserver(send).observe(root, { subtree: true, attributes: true, childList: true });
+    }
+  })();
+
+})();
+</script>
+</body>
+</html>
