@@ -1,0 +1,1187 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mini Life Debugger Pro</title>
+    
+    <meta name="description" content="Debug your daily routine with the Mini Life Debugger.">
+    <meta property="og:title" content="Mini Life Debugger 👾">
+    <meta name="theme-color" content="#fff9e6">
+
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&amp;family=JetBrains+Mono:wght@500&amp;family=Space+Grotesk:wght@500;700&amp;display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <style>
+        :root {
+            --bg-body: #fff9e6;
+            --bg-panel: #ffffff;
+            --border: #000000;
+            --primary: #ff6b6b;
+            --accent-teal: #4ecdc4;
+            --accent-yellow: #ffe66d;
+            --accent-blue: #90e0ef;
+            --text-main: #2d3436;
+            --text-muted: #636e72;
+            --sidebar-width: 460px; 
+            --header-height: 80px;
+            --lang-bar-height: 0px;
+        }
+
+        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            margin: 0; padding: 0;
+            background-color: var(--bg-body);
+            background-image: radial-gradient(#000000 1px, transparent 1px);
+            background-size: 20px 20px;
+            color: var(--text-main);
+            font-family: 'Fredoka', sans-serif;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- LAYOUT STRUCTURE --- */
+        .app-shell { 
+            display: flex; 
+            height: calc(100vh - var(--header-height) - var(--lang-bar-height)); 
+            width: 100%; 
+            overflow: hidden; 
+            position: relative;
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar { 
+            width: var(--sidebar-width); 
+            background: #fffcf5;
+            border-right: 3px solid var(--border); 
+            display: flex; 
+            flex-direction: column; 
+            flex-shrink: 0; 
+            z-index: 20; 
+            height: 100%; 
+            box-shadow: 5px 0px 15px rgba(0,0,0,0.05);
+            max-width: 100%;
+        }
+
+        .sidebar-header {
+            padding: 20px 20px 0 20px;
+            flex-shrink: 0; 
+        }
+
+        .scroll-container { 
+            flex: 1; 
+            overflow-y: auto; 
+            overflow-x: hidden;
+            padding: 20px; 
+            scrollbar-width: thin; 
+            scrollbar-color: #000 #eee; 
+            min-height: 0; 
+        }
+
+        .rez-footer { 
+            padding: 20px; 
+            border-top: 3px solid #000; 
+            background: #fff; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+            margin-top: auto; 
+            flex-shrink: 0; 
+        }
+
+        .main-stage { 
+            flex: 1; 
+            position: relative; 
+            overflow-y: auto; 
+            overflow-x: hidden; 
+            padding: 0; 
+            scroll-behavior: smooth; 
+            height: 100%; 
+        }
+        
+        .view-container { padding: 40px; padding-bottom: 200px; max-width: 1200px; margin: 0 auto; }
+
+        /* --- HEADER --- */
+        .top-nav { height: var(--header-height); background: var(--bg-panel); border-bottom: 3px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 30px; z-index: 30; flex-shrink: 0; }
+        .logo-group { display: flex; align-items: center; gap: 15px; }
+        .logo-icon { width: 40px; height: 40px; background: var(--accent-yellow); border: 2px solid var(--border); border-radius: 8px; box-shadow: 2px 2px 0px #000; display: grid; place-items: center; font-size: 24px; }
+        .logo-text { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 24px; text-transform: uppercase; letter-spacing: -1px; }
+
+        .mode-switcher { display: flex; background: #fff; padding: 5px; border: 2px solid var(--border); border-radius: 50px; box-shadow: 3px 3px 0px #000; gap: 5px; }
+        .mode-btn { padding: 8px 20px; border: 2px solid transparent; background: transparent; color: var(--text-muted); font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 700; border-radius: 40px; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+        .mode-btn.active { background: var(--accent-teal); color: #000; border: 2px solid #000; box-shadow: 2px 2px 0px #000; }
+
+        /* --- LANGUAGE BAR --- */
+        .lang-bar {
+            height: var(--lang-bar-height);
+            background: var(--bg-panel);
+            border-bottom: 3px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            z-index: 25;
+            flex-shrink: 0;
+        }
+        .lang-btn {
+            font-family: 'Space Grotesk';
+            font-weight: 700;
+            font-size: 14px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            opacity: 0.5;
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: 2px solid transparent;
+        }
+        .lang-btn:hover { opacity: 1; background: #f0f0f0; }
+        .lang-btn.active { opacity: 1; border: 2px solid #000; background: var(--accent-yellow); box-shadow: 2px 2px 0px #000; }
+
+        /* --- UX/UI: VISIBLE INPUT CARDS --- */
+        .control-group { 
+            background: #fff; 
+            border: 2px solid #000; 
+            border-radius: 12px; 
+            padding: 18px; 
+            margin-bottom: 20px; 
+            box-shadow: 5px 5px 0px rgba(0,0,0,0.1); 
+            animation: slideIn 0.3s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+        .control-group::before {
+            content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 6px;
+            background: var(--accent-blue);
+        }
+        .control-group:nth-child(even)::before { background: var(--primary); }
+
+        @keyframes slideIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+        .group-header { 
+            font-family: 'Space Grotesk', sans-serif; 
+            font-weight: 800; font-size: 15px; 
+            text-transform: uppercase; color: #000; 
+            margin-bottom: 12px; padding-bottom: 8px;
+            border-bottom: 2px solid #eee;
+            display: flex; align-items: center; gap: 10px; 
+        }
+
+        .input-wrapper { margin-bottom: 15px; }
+        .input-label { display: block; font-size: 13px; font-weight: 700; color: #333; margin-bottom: 6px; font-family: 'Space Grotesk'; }
+        
+        .std-input, .std-select { 
+            width: 100%; background: #fcfcfc; 
+            border: 2px solid #000; color: #000; 
+            padding: 12px; 
+            border-radius: 8px; 
+            font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 600;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .std-input:focus, .std-select:focus { 
+            outline: none;
+            background: #fff;
+            transform: translate(-2px, -2px);
+            box-shadow: 4px 4px 0px var(--accent-teal);
+            border-color: #000;
+        }
+
+        /* --- PRIVACY NOTE --- */
+        .privacy-note {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 600;
+            background: rgba(0,0,0,0.03);
+            padding: 8px 10px;
+            border-radius: 6px;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        .privacy-icon { font-size: 14px; }
+
+        /* BATTERY PRO STYLES */
+        .type-selector { display: flex; gap: 10px; margin-bottom: 10px; }
+        .type-btn { flex: 1; padding: 10px; border: 2px solid #000; border-radius: 8px; cursor: pointer; font-family: 'Space Grotesk'; font-weight: 700; font-size: 12px; transition: 0.1s; box-shadow: 2px 2px 0px rgba(0,0,0,0.1); opacity: 0.6; display: flex; flex-direction: column; align-items: center; gap: 5px; background: #fff; }
+        .type-btn.active { opacity: 1; transform: translate(-2px, -2px); box-shadow: 4px 4px 0px #000; border: 2px solid #000; }
+        .type-btn:hover { opacity: 1; }
+        .t-work.active { background: var(--accent-blue); } .t-social.active { background: var(--primary); } .t-rest.active { background: var(--accent-teal); } .t-phys.active { background: var(--accent-yellow); }
+
+        .advisor-panel { background: #f4f4f5; border: 2px dashed #000; border-radius: 12px; padding: 20px; margin-bottom: 20px; animation: slideIn 0.4s; }
+        .advisor-header { font-weight: 800; font-size: 14px; text-transform: uppercase; margin-bottom: 10px; display:flex; gap:10px; align-items:center; }
+        .insight-item { font-size: 14px; margin-bottom: 8px; padding-left: 15px; border-left: 3px solid #000; font-family: 'Fredoka'; line-height: 1.4; }
+        .chronotype-box { background: #fff; border: 2px solid #000; padding: 15px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 4px 4px 0px #000; }
+        .sched-type-dot { width: 12px; height: 12px; border-radius: 50%; border: 1px solid #000; margin-right: 10px; }
+        .custom-act-box { background: #fdfdfd; border: 2px dashed #ccc; border-radius: 10px; padding: 15px; margin-bottom: 15px; }
+        .custom-flex { display: flex; gap: 10px; margin-bottom: 10px; }
+
+        /* FACTOR CARDS */
+        .factor-card, .schedule-item { background: #fff; border: 2px solid #000; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 3px 3px 0px #ccc; transition: all 0.2s; }
+        .factor-card:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0px #000; }
+        .factor-header, .schedule-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .factor-title { font-weight: 700; font-size: 16px; color: #000; background: transparent; border: none; border-bottom: 2px solid transparent; width: 70%; padding: 5px 0; }
+        .factor-title:focus { border-bottom: 2px solid var(--accent-blue); }
+        .slider-group { display: grid; grid-template-columns: 35px 1fr 35px; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .slider-label { font-size: 12px; font-weight: 700; font-family: 'JetBrains Mono'; text-align: center; }
+
+        input[type=range] { width: 100%; -webkit-appearance: none; background: transparent; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 10px; background: #fff; border: 2px solid #000; border-radius: 10px; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 20px; width: 20px; border-radius: 50%; background: var(--primary); border: 2px solid #000; margin-top: -7px; cursor: pointer; }
+        input[type=checkbox] { width: 20px; height: 20px; accent-color: var(--primary); cursor: pointer; }
+
+        .btn-primary { width: 100%; background: var(--primary); color: #000; border: 2px solid #000; padding: 16px; border-radius: 12px; font-weight: 800; font-family: 'Space Grotesk'; font-size: 18px; cursor: pointer; box-shadow: 4px 4px 0px #000; transition: 0.1s; display: flex; justify-content: center; align-items: center; gap: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-primary:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px #000; }
+        .btn-secondary { background: #fff; color: #000; border: 2px solid #000; padding: 12px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; width: 100%; box-shadow: 3px 3px 0px #000; }
+        .btn-secondary:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0px #000; }
+
+        /* --- DASHBOARD --- */
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 40px; width: 100%; }
+        .viz-card { background: #fff; border: 3px solid #000; border-radius: 16px; padding: 20px; box-shadow: 8px 8px 0px #000; position: relative; overflow: hidden; display: flex; flex-direction: column; min-height: 450px; }
+        .viz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px dashed #000; padding-bottom: 10px; }
+        .viz-title { font-family: 'Space Grotesk'; font-size: 20px; font-weight: 700; }
+        .viz-badge { font-size: 12px; background: var(--accent-yellow); border: 2px solid #000; padding: 4px 10px; border-radius: 20px; font-weight: 700; }
+        .canvas-container { flex: 1; position: relative; width: 100%; height: 100%; min-height: 300px; }
+        canvas { width: 100% !important; height: 100% !important; }
+
+        /* --- SUMMARY BOX --- */
+        .summary-box { background: #fff; border: 3px solid #000; border-radius: 16px; padding: 30px; text-align: center; margin-bottom: 40px; box-shadow: 6px 6px 0px var(--accent-teal); position: relative; display: none; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .summary-box.active { display: block; }
+        @keyframes popIn { from { opacity:0; transform:scale(0.8); } to { opacity:1; transform:scale(1); } }
+        .winner-text { font-size: 32px; font-weight: 800; color: #000; margin-bottom: 5px; font-family: 'Space Grotesk'; text-transform: uppercase; }
+        .confidence-text { font-size: 16px; color: var(--text-muted); font-weight: 600; }
+
+        /* --- HABIT INSIGHTS --- */
+        .insight-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-top: 15px; text-align: left; }
+        .stat-block { background: #f9f9f9; border: 2px solid #ccc; border-radius: 8px; padding: 10px; display: flex; flex-direction: column; }
+        .stat-label { font-size: 11px; font-weight: 700; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-val { font-size: 20px; font-weight: 800; font-family: 'Space Grotesk'; color: #000; margin-top: 2px; }
+        .stat-desc { font-size: 14px; margin-top: 15px; line-height: 1.5; text-align: left; }
+
+        /* --- MAKER BADGE --- */
+        .maker-badge { margin-top: 5px; background: var(--accent-yellow); border: 2px solid #000; border-radius: 10px; padding: 12px; text-align: center; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 14px; color: #000; box-shadow: 4px 4px 0px #000; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .maker-badge:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0px var(--accent-blue); background: #fff; }
+        .heart-icon { color: #ff6b6b; font-size: 16px; animation: heartBeat 1.2s infinite alternate; }
+        @keyframes heartBeat { 0% { transform: scale(1); } 100% { transform: scale(1.3); } }
+        .maker-name { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; color: inherit; cursor: pointer; transition: color 0.2s; }
+        .maker-name:hover { color: var(--primary); }
+
+        /* --- GUIDE VIEW --- */
+        .guide-card { background: #fff; border: 3px solid #000; border-radius: 16px; padding: 30px; margin-bottom: 30px; box-shadow: 6px 6px 0px #000; }
+        .guide-title { font-family: 'Space Grotesk'; font-size: 24px; font-weight: 800; margin-bottom: 15px; color: var(--text-main); }
+        .guide-text { font-size: 16px; line-height: 1.6; color: var(--text-main); }
+        .guide-highlight { background: var(--accent-yellow); padding: 2px 6px; border: 1px solid #000; border-radius: 4px; font-weight: 700; }
+        .toc-item { padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; font-weight: 600; transition: 0.2s; }
+        .toc-item:hover { color: var(--accent-teal); padding-left: 15px; }
+
+        /* --- POP UP HELPER --- */
+        .help-bar { position: fixed; bottom: 30px; right: 30px; z-index: 100; display: flex; align-items: flex-end; gap: 15px; animation: bounceIn 0.6s; }
+        .help-bubble { background: #fff; border: 3px solid #000; padding: 15px 20px; border-radius: 20px 20px 0 20px; box-shadow: 5px 5px 0px rgba(0,0,0,0.2); font-family: 'Space Grotesk'; font-weight: 700; font-size: 16px; max-width: 250px; }
+        .help-avatar { width: 70px; height: 70px; background: var(--accent-blue); border: 3px solid #000; border-radius: 50%; display: grid; place-items: center; font-size: 35px; cursor: pointer; box-shadow: 4px 4px 0px #000; }
+        .help-btn { background: var(--accent-yellow); border: 2px solid #000; padding: 8px 15px; border-radius: 8px; font-weight: 700; cursor: pointer; margin-top: 5px; width: 100%; box-shadow: 2px 2px 0px #000; }
+        @keyframes bounceIn { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
+        .hidden { display: none !important; }
+
+        /* --- NEO-POP MODAL --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(2px);
+            z-index: 999; display: none; place-items: center;
+        }
+        .modal-overlay.active { display: grid; }
+        .modal-box {
+            background: #fff; width: 90%; max-width: 450px;
+            border: 4px solid #000; border-radius: 16px;
+            padding: 30px; box-shadow: 10px 10px 0px var(--primary);
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+        }
+        .modal-close {
+            position: absolute; top: 15px; right: 15px;
+            background: #000; color: #fff; border: none;
+            width: 30px; height: 30px; border-radius: 50%;
+            cursor: pointer; font-weight: bold; font-family: 'Space Grotesk';
+        }
+        .modal-title { font-family: 'Space Grotesk'; font-size: 24px; font-weight: 800; margin-bottom: 20px; text-transform: uppercase; }
+        .modal-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 15px; }
+        .modal-btn {
+            display: flex; align-items: center; gap: 10px;
+            padding: 12px; border: 2px solid #000; border-radius: 8px;
+            background: #fff; color: #000; font-family: 'Fredoka'; font-weight: 600;
+            text-decoration: none; transition: 0.2s; box-shadow: 3px 3px 0px #ccc;
+            cursor: pointer; font-size: 14px;
+        }
+        .modal-btn:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0px #000; }
+        .mb-yellow { background: var(--accent-yellow); }
+        .mb-teal { background: var(--accent-teal); }
+        .mb-blue { background: var(--accent-blue); }
+
+        /* GUT CHECK SPECIFIC MODAL STYLES */
+        .gut-options { display: flex; gap: 15px; margin-top: 20px; }
+        .gut-btn { flex: 1; padding: 20px; border: 2px solid #000; border-radius: 12px; background: #fff; font-weight: 800; cursor: pointer; box-shadow: 4px 4px 0px #ccc; transition: 0.2s; text-align: center; }
+        .gut-btn:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0px #000; }
+        .gut-btn.active { background: var(--accent-blue); border: 2px solid #000; box-shadow: 2px 2px 0px #000; }
+
+        /* --- PDF PRINT STYLES --- */
+        .pdf-report-container {
+            position: absolute; top: -9999px; left: -9999px;
+            width: 800px; /* A4 Ratioish */
+            background: #fff9e6; 
+            padding: 40px; 
+            padding-bottom: 100px; 
+            border: 5px solid #000;
+            font-family: 'Fredoka', sans-serif;
+            color: #000;
+        }
+        .pdf-header { border-bottom: 3px solid #000; padding-bottom: 20px; margin-bottom: 30px; }
+        .pdf-title { font-family: 'Space Grotesk'; font-size: 30px; font-weight: 800; text-transform: uppercase; }
+        .pdf-subtitle { font-family: 'JetBrains Mono'; font-size: 14px; color: #666; margin-top: 5px; }
+        .pdf-section { margin-bottom: 30px; background: #fff; border: 2px solid #000; border-radius: 10px; padding: 20px; box-shadow: 4px 4px 0px #ccc; }
+        .pdf-footer { display: none; }
+        .pdf-img-container { text-align: center; margin: 20px 0; border: 2px dashed #ccc; padding: 10px; background: #fff; }
+        .pdf-img-container img { max-width: 100%; height: auto; }
+        .pdf-list-item { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px dotted #ccc; }
+
+        /* --- RESPONSIVE LOGIC --- */
+        @media (min-width: 901px) and (max-width: 1400px) {
+            :root { --sidebar-width: 380px; }
+            .control-group { padding: 15px; margin-bottom: 15px; }
+            .std-input { padding: 10px; font-size: 14px; }
+            .btn-primary { font-size: 16px; padding: 14px; }
+        }
+
+        @media (max-width: 900px) {
+            body { height: auto; overflow-y: auto; }
+            .app-shell { flex-direction: column; height: auto; overflow: visible; }
+            .top-nav { flex-direction: column; height: auto; padding: 15px 10px; gap: 15px; position: sticky; top: 0; width: 100%; }
+            .mode-switcher { width: 100%; justify-content: center; gap: 4px; padding: 4px; display: flex; flex-wrap: nowrap; }
+            .mode-btn { flex: 1; padding: 8px 4px; font-size: 12px; min-width: 0; }
+            .sidebar { width: 100%; height: auto; border-right: none; border-bottom: 3px solid #000; overflow: visible; box-shadow: none; max-width: 100%; }
+            .main-stage { height: auto; overflow: visible; padding: 0; }
+            .view-container { padding: 20px; padding-bottom: 100px; }
+            .dashboard-grid { grid-template-columns: 1fr; gap: 20px; }
+            .viz-card { min-height: 350px; box-shadow: 4px 4px 0px #000; }
+            .help-bar { bottom: 15px; right: 15px; transform: scale(0.9); transform-origin: bottom right; }
+            .lang-bar { position: relative; width: 100%; z-index: 29; }
+            .insight-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="top-nav">
+        <div class="logo-group">
+            <div class="logo-icon">👾</div>
+            <div class="logo-text">Mini Life Debugger</div>
+        </div>
+        <div class="mode-switcher">
+            <button class="mode-btn active" id="navDecision" onclick="app.switchMode('decision')">Decision</button>
+            <button class="mode-btn" id="navHabit" onclick="app.switchMode('habit')">Habit</button>
+            <button class="mode-btn" id="navBattery" onclick="app.switchMode('battery')">Battery</button>
+            <button class="mode-btn" id="navGuide" onclick="app.switchMode('guide')">Guide</button>
+        </div>
+    </nav>
+
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="control-group" style="padding: 15px; margin-bottom: 0; border: 2px solid #000; box-shadow: 4px 4px 0px #000;">
+                    <div class="group-header" id="profileHeader">👤 YOUR PROFILE</div>
+                    <input id="userName" class="std-input" placeholder="Enter your name" oninput="app.userName=this.value">
+                    <div class="privacy-note">
+                        <span class="privacy-icon">🔒</span>
+                        <span id="privacyText">Safe &amp; Private: Data stays on your device.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scroll-container" id="controlsArea">
+                </div>
+            
+            <div class="rez-footer">
+                <div id="actionButtons"></div> 
+                <div class="maker-badge">
+                    Made with <span class="heart-icon">❤️</span> by <span class="maker-name">RileyShares.com</span>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-stage">
+            <div id="decisionView" class="view-container">
+                <div id="decisionSummary" class="summary-box"></div>
+                <div class="dashboard-grid">
+                    <div class="viz-card">
+                        <div class="viz-header"><div class="viz-title" id="titleHeatmap">Impact Heatmap</div><div class="viz-badge">MATRIX</div></div>
+                        <div class="canvas-container"><canvas id="heatmapCanvas"></canvas></div>
+                    </div>
+                    <div class="viz-card">
+                        <div class="viz-header"><div class="viz-title" id="titleRadar">Balance Radar</div><div class="viz-badge">ANALYSIS</div></div>
+                        <div class="canvas-container"><canvas id="radarCanvas"></canvas></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="habitView" class="view-container hidden">
+                <div id="habitSummary" class="summary-box" style="text-align: left;"></div>
+                
+                <div class="dashboard-grid">
+                    <div class="viz-card" style="grid-column: 1 / -1;">
+                        <div class="viz-header"><div class="viz-title" id="titleGrowth">Growth Curve</div><div class="viz-badge">MONTE CARLO</div></div>
+                        <div class="canvas-container" style="min-height: 400px;"><canvas id="growthCanvas"></canvas></div>
+                    </div>
+                </div>
+                <div class="viz-card" style="margin-top: 30px;">
+                    <div class="viz-header"><div class="viz-title" id="titleDist">Distribution</div><div class="viz-badge">PROBABILITY</div></div>
+                    <div class="canvas-container" style="min-height: 250px;"><canvas id="distributionCanvas"></canvas></div>
+                </div>
+            </div>
+
+            <div id="batteryView" class="view-container hidden">
+                <div class="dashboard-grid">
+                    <div style="grid-column: 1 / -1;">
+                        <div class="chronotype-box">
+                            <div><div style="font-weight:800; font-family:'Space Grotesk'; font-size:18px;" id="bioRhythmTitle">🧬 Bio-Rhythm</div><div style="font-size:13px; color:#666;" id="bioRhythmDesc">Set your natural energy pattern for better accuracy.</div></div>
+                            <select id="chronoSelect" class="std-select" style="width:150px;" onchange="app.updateChronotype(this.value)">
+                                <option value="bear">🐻 Bear</option><option value="wolf">🐺 Wolf</option><option value="lion">🦁 Lion</option><option value="dolphin">🐬 Dolphin</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="viz-card" style="grid-column: 1 / -1;">
+                        <div class="viz-header"><div class="viz-title" id="titleTopology">Energy Topology</div><div class="viz-badge">DUAL-LAYER</div></div>
+                        <div style="display:flex; gap:15px; margin-bottom:10px; font-size:12px; font-weight:700;"><div style="display:flex; align-items:center; gap:5px;"><div style="width:10px; height:10px; background:#ccc; border:1px solid #000;"></div> <span id="lblNatural">Natural</span></div><div style="display:flex; align-items:center; gap:5px;"><div style="width:10px; height:10px; background:#4ecdc4; border:1px solid #000;"></div> <span id="lblActual">Actual</span></div></div>
+                        <div class="canvas-container" style="min-height: 350px;"><canvas id="batteryCanvas"></canvas></div>
+                    </div>
+                    <div style="grid-column: 1 / -1;" id="advisorContainer"></div>
+                </div>
+            </div>
+
+            <div id="guideView" class="view-container hidden">
+                <div class="guide-card"><div class="guide-title" id="guideDecTitle">🧠 Decision Matrix</div><p class="guide-text" id="guideDecText">Uses a <strong>Weighted Sum Model</strong>. Calculate: <code>(Score × Importance)</code> for every factor.</p></div>
+                <div class="guide-card"><div class="guide-title" id="guideHabitTitle">🌱 Habit Simulator</div><p class="guide-text" id="guideHabitText">Uses a <strong>Monte Carlo Simulation</strong> to simulate <span class="guide-highlight">50 Parallel Universes</span>.</p></div>
+                <div class="guide-card"><div class="guide-title" id="guideBatTitle">🔋 Social Battery</div><p class="guide-text" id="guideBatText">An <strong>Energy Accounting</strong> tool tracking your mental energy (0-100%).</p></div>
+            </div>
+        </main>
+    </div>
+
+    <div class="help-bar" id="helpBar">
+        <div class="help-bubble"><div id="helpText">Stuck? Let me pick a scenario for you!</div><button class="help-btn" onclick="app.randomHelper()">✨ Help Me</button><button class="help-btn" style="background:#fff;" onclick="document.getElementById('helpBar').style.display='none'">Dismiss</button></div>
+        <div class="help-avatar" onclick="document.querySelector('.help-bubble').classList.toggle('hidden')">🤖</div>
+    </div>
+
+    <div class="modal-overlay" id="supportModal">
+        <div class="modal-box">
+            <button class="modal-close" onclick="app.closeModal('supportModal')">×</button>
+            <div class="modal-title" id="modTitle">Do you think this is helpful?</div>
+            <ul class="modal-list">
+                <li><a href="https://rileyshares.com" target="_blank" class="modal-btn mb-teal"><span>✍️</span> <span id="modSub">Subscribe to RileyShares.com</span></a></li>
+                <li><a href="mailto:sharesriley@gmail.com" class="modal-btn mb-blue"><span>📧</span> <span id="modFeed">Give Feedback (sharesriley@gmail.com)</span></a></li>
+                <li style="text-align:center; font-style:italic; font-size:14px; margin-top:10px; color:#666;" id="modFun">Simply enjoy this app, hifi! 🙌</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="gutModal">
+        <div class="modal-box">
+            <button class="modal-close" onclick="app.closeModal('gutModal')">×</button>
+            <div class="modal-title" id="gutTitle">❤️ Gut Check</div>
+            <div style="font-size:16px; line-height:1.5; color:#333;" id="gutDesc">Before we do the math... deep down, which one do you <b>HOPE</b> wins?</div>
+            <div class="gut-options">
+                <button class="gut-btn" id="btnGutA" onclick="app.submitGutCheck('A')">Option A</button>
+                <button class="gut-btn" id="btnGutB" onclick="app.submitGutCheck('B')">Option B</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+class LifeArchitect {
+    constructor() {
+        this.mode = 'decision';
+        this.lang = 'en';
+        this.userName = '';
+        this.habitStats = null;
+        this.gutChoice = null; // Store user's gut preference
+        
+        // --- TRANSLATION DICTIONARY ---
+        this.translations = {
+            en: {
+                nav_dec: "Decision", nav_hab: "Habit", nav_bat: "Battery", nav_guide: "Guide",
+                profile_header: "👤 YOUR PROFILE", profile_ph: "Enter your name",
+                reset_btn: "↺ RESET DATA", pdf_btn: "💾 SAVE AS PDF", pdf_gen: "⏳ GENERATING...",
+                btn_make_dec: "🔮 MAKE DECISION", btn_run_sim: "🚀 RUN SIMULATION", btn_back: "← BACK TO TOOLS",
+                
+                // Decision
+                group_battle: "⚔️ THE BATTLE", lbl_opt_a: "Option A", lbl_opt_b: "Option B",
+                group_factors: "⚖️ THE FACTORS", btn_add_factor: "+ Add Factor",
+                lbl_imp: "IMP", chart_heatmap: "Impact Heatmap", chart_radar: "Balance Radar",
+                win_txt: "WINNER", conf_level: "Confidence Level", based_on: "(Based on your weighted factors)",
+                
+                // New Gut Check Logic
+                gut_title: "❤️ Gut Check", 
+                gut_desc: "Before we do the math... deep down, which one do you <b>HOPE</b> wins?",
+                gut_match: "🚀 <b>Harmony!</b> Your logic aligns with your intuition.",
+                gut_mismatch: "🤔 <b>Cognitive Dissonance?</b> Your logic chose {win}, but your heart wanted {gut}. Maybe re-evaluate your weights?",
+
+                // Habit
+                group_habit: "🌱 HABIT SETTINGS", lbl_habit_name: "Habit Name", lbl_success: "Success Rate (%)", lbl_years: "Years",
+                lbl_consistent: "Consistent", chart_growth: "Growth Curve", chart_dist: "Distribution",
+                chart_dist_sub: "Outcome Distribution (Lowest to Highest Potential)",
+                hab_res_title: "📊 Simulation Analysis",
+                hab_worst: "Worst Case (10%)", hab_likely: "Likely Outcome", hab_best: "Best Case (Top 10%)",
+                hab_desc: "In the <strong>Likely Scenario</strong> (Median), your consistency leads to a <strong>{x}x improvement</strong> compared to starting. The gap between your worst and best days shows the power of 'lucky streaks' combined with effort.",
+                // New 2-Day Rule
+                chk_2day: "Apply 'Never Miss Twice' Rule",
+
+                // Battery
+                group_event: "⚡ ADD EVENT", group_timeline: "📋 DAY TIMELINE",
+                btn_add_block: "+ Add Block", 
+                type_work: "🧠<br>Focus", type_social: "💬<br>Social", type_phys: "💪<br>Body", type_rest: "☕<br>Rest",
+                bio_title: "🧬 Bio-Rhythm", bio_desc: "Set your natural energy pattern for better accuracy.",
+                chart_topo: "Energy Topology", lbl_nat: "Natural", lbl_act: "Actual",
+                adv_header: "🤖 Life Architect AI Analysis",
+                adv_load: "High Cognitive Load:", adv_load_desc: "You have {w} focus blocks but only {r} rest blocks.",
+                adv_diminish: "Diminishing Returns:", adv_diminish_desc: "You have {c} work blocks in a row. Energy drops sharply after 3 hours.",
+                adv_wolf: "Wolf Alert:", adv_wolf_desc: "Wolves function better with a slow start before diving into work.",
+                adv_crit: "⚠️ CRITICAL ZONE:", adv_crit_desc: "Your battery hits {m}%. Schedule a 'High Recharge' immediately.",
+                adv_opt: "🌟 <b>Optimal Flow:</b> This schedule looks well-balanced. Great job!",
+                // New Sleep Debt
+                adv_debt: "⚠️ <b>Sleep Debt Alert:</b>", adv_debt_desc: "You are ending the day at {v}%. You are borrowing energy from tomorrow.",
+                
+                // Guide
+                toc: "📚 TABLE OF CONTENTS", toc_1: "1. Decision Logic", toc_2: "2. Habit Simulation", toc_3: "3. Social Battery",
+                g_dec_t: "🧠 Decision Matrix", g_dec_d: "Uses a <strong>Weighted Sum Model</strong>. Calculate: <code>(Score × Importance)</code> for every factor.",
+                g_hab_t: "🌱 Habit Simulator", g_hab_d: "Uses a <strong>Monte Carlo Simulation</strong> to simulate <span class='guide-highlight'>50 Parallel Universes</span>.",
+                g_bat_t: "🔋 Social Battery", g_bat_d: "An <strong>Energy Accounting</strong> tool tracking your mental energy (0-100%).",
+
+                // Robot
+                rob_dec: "Stuck? Let me pick a scenario!", rob_dec_btn: "✨ Pick Scenario",
+                rob_hab: "Need motivation? Simulate a super-habit!", rob_hab_btn: "📈 Simulate Growth",
+                rob_bat: "Feeling drained? Try a balanced schedule.", rob_bat_btn: "⚡ Fix My Schedule",
+                rob_guide: "Read the docs to master your life!", rob_guide_btn: "📚 Learn",
+                
+                // PDF
+                pdf_title: "Mini Life Debugger Report", pdf_sub: "Personalized for <strong>{name}</strong>",
+                pdf_dilemma: "⚔️ The Dilemma", pdf_logic: "📊 Logic Breakdown", pdf_vis: "Visual Analysis",
+                pdf_sim: "🌱 Habit Simulation", pdf_traj: "Growth Trajectory (50 Simulations)", pdf_prob: "Probability Distribution",
+                pdf_topo: "🔋 Energy Topology", pdf_daily: "📋 Daily Schedule", pdf_ai: "🤖 AI Insights",
+
+                // Modal
+                mod_title: "Do you think this is helpful?",
+                mod_sub: "Subscribe to RileyShares.com",
+                mod_sup: "Support me on BuyMeACoffee",
+                mod_feed: "Give Feedback (sharesriley@gmail.com)",
+                mod_fun: "Simply enjoy this app, hifi! 🙌",
+
+                // Privacy
+                priv_note: "Safe & Private: Data stays on your device."
+            }
+        };
+
+        this.defaults = {
+            decision: {
+                optionA: 'Stay at Job', optionB: 'Quit & Travel',
+                factors: [{ id: 1, name: 'Money 💰', weight: 5, scoreA: 5, scoreB: 1 }, { id: 2, name: 'Happiness 😊', weight: 5, scoreA: 3, scoreB: 5 }, { id: 3, name: 'Growth 🚀', weight: 4, scoreA: 4, scoreB: 5 }]
+            },
+            habit: { habitName: 'Learning Code', consistency: 85, years: 1, compoundRate: 1.01, twoDayRule: false },
+            battery: { 
+                chronotype: 'bear', currentTypeSelection: 'work',
+                schedule: [{ name: "Wake Up", val: 0, type: 'rest' }, { name: "Commute", val: -10, type: 'work' }, { name: "Deep Work", val: -25, type: 'work' }, { name: "Lunch Break", val: 15, type: 'rest' }] 
+            }
+        };
+        this.decisionData = JSON.parse(JSON.stringify(this.defaults.decision));
+        this.habitData = JSON.parse(JSON.stringify(this.defaults.habit));
+        this.batteryData = JSON.parse(JSON.stringify(this.defaults.battery));
+        this.scenarios = [
+            { a: "Buy House", b: "Rent", f: [{n:"Freedom", w:8, a:2, b:9}, {n:"Equity", w:9, a:10, b:0}, {n:"Stress", w:6, a:2, b:10}] },
+            { a: "Pizza", b: "Salad", f: [{n:"Taste", w:10, a:10, b:4}, {n:"Health", w:9, a:2, b:10}, {n:"Guilt", w:5, a:8, b:2}] },
+            { a: "Bootcamp", b: "College", f: [{n:"Cost", w:9, a:8, b:2}, {n:"Prestige", w:6, a:4, b:9}, {n:"Speed", w:10, a:10, b:2}] }
+        ];
+        this.init();
+    }
+
+    t(key) { return this.translations[this.lang][key] || key; }
+
+    init() {
+        this.updateStaticText();
+        this.renderControls();
+        requestAnimationFrame(() => { this.updateVisuals(); setTimeout(() => document.getElementById('helpBar').style.display = 'flex', 1500); });
+        window.addEventListener('resize', () => { requestAnimationFrame(() => this.updateVisuals()); });
+    }
+
+    updateStaticText() {
+        // Nav & Sidebar
+        document.getElementById('navDecision').innerText = this.t('nav_dec');
+        document.getElementById('navHabit').innerText = this.t('nav_hab');
+        document.getElementById('navBattery').innerText = this.t('nav_bat');
+        document.getElementById('navGuide').innerText = this.t('nav_guide');
+        document.getElementById('profileHeader').innerText = this.t('profile_header');
+        document.getElementById('userName').placeholder = this.t('profile_ph');
+        document.getElementById('privacyText').innerText = this.t('priv_note');
+        
+        // Titles
+        document.getElementById('titleHeatmap').innerText = this.t('chart_heatmap');
+        document.getElementById('titleRadar').innerText = this.t('chart_radar');
+        document.getElementById('titleGrowth').innerText = this.t('chart_growth');
+        document.getElementById('titleDist').innerText = this.t('chart_dist');
+        document.getElementById('titleTopology').innerText = this.t('chart_topo');
+        
+        // Bio
+        document.getElementById('bioRhythmTitle').innerText = this.t('bio_title');
+        document.getElementById('bioRhythmDesc').innerText = this.t('bio_desc');
+        document.getElementById('lblNatural').innerText = this.t('lbl_nat');
+        document.getElementById('lblActual').innerText = this.t('lbl_act');
+        
+        // Guide
+        document.getElementById('guideDecTitle').innerText = this.t('g_dec_t');
+        document.getElementById('guideDecText').innerHTML = this.t('g_dec_d');
+        document.getElementById('guideHabitTitle').innerText = this.t('g_hab_t');
+        document.getElementById('guideHabitText').innerHTML = this.t('g_hab_d');
+        document.getElementById('guideBatTitle').innerText = this.t('g_bat_t');
+        document.getElementById('guideBatText').innerHTML = this.t('g_bat_d');
+
+        // Modal
+        document.getElementById('modTitle').innerText = this.t('mod_title');
+        document.getElementById('modSub').innerText = this.t('mod_sub');
+        document.getElementById('modFeed').innerText = this.t('mod_feed');
+        document.getElementById('modFun').innerText = this.t('mod_fun');
+
+        // Gut Check
+        document.getElementById('gutTitle').innerText = this.t('gut_title');
+        document.getElementById('gutDesc').innerHTML = this.t('gut_desc');
+    }
+
+    switchMode(newMode) {
+        this.mode = newMode;
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active')); event.target.classList.add('active');
+        ['decision', 'habit', 'battery', 'guide'].forEach(v => { const el = document.getElementById(v + 'View'); if(el) el.classList.toggle('hidden', newMode !== v); });
+        this.renderControls(); this.updateRobot();
+        if(newMode !== 'guide') setTimeout(() => this.updateVisuals(), 50);
+    }
+
+    resetData() {
+        if(this.mode === 'battery') this.batteryData = JSON.parse(JSON.stringify(this.defaults.battery));
+        else if(this.mode === 'habit') { this.habitData = JSON.parse(JSON.stringify(this.defaults.habit)); this.habitStats = null; document.getElementById('habitSummary').classList.remove('active'); }
+        else { this.decisionData = JSON.parse(JSON.stringify(this.defaults.decision)); this.gutChoice = null; }
+        this.renderControls(); this.updateVisuals(); this.hideWinner();
+        if(this.mode === 'battery') this.updateAdvisor();
+    }
+
+    randomHelper() {
+        if(this.mode === 'decision') {
+            const s = this.scenarios[Math.floor(Math.random() * this.scenarios.length)];
+            this.decisionData.optionA = s.a; this.decisionData.optionB = s.b;
+            this.decisionData.factors = s.f.map((x, i) => ({ id: Date.now()+i, name: x.n, weight: x.w, scoreA: x.a, scoreB: x.b }));
+            this.hideWinner();
+        } else if (this.mode === 'habit') {
+            this.habitData = { habitName: "Meditate 🧘", consistency: 90, years: 5, compoundRate: 1.01 };
+        } else if (this.mode === 'battery') {
+            this.batteryData.schedule = [{name:"Wake Up",val:0, type:'rest'}, {name:"Deep Work",val:-15, type:'work'}, {name:"Deep Work",val:-15, type:'work'}, {name:"Coffee",val:10, type:'phys'}, {name:"Meeting",val:-10, type:'social'}, {name:"Nap",val:20, type:'rest'}, {name:"Gym",val:5, type:'phys'}, {name:"Social",val:-20, type:'social'}];
+        }
+        this.renderControls(); this.updateVisuals(); if(this.mode === 'battery') this.updateAdvisor();
+    }
+
+    updateRobot() {
+        const txt = document.getElementById('helpText'); const btn = document.querySelector('.help-btn');
+        if(this.mode === 'decision') { txt.innerText = this.t('rob_dec'); btn.innerText = this.t('rob_dec_btn'); }
+        else if(this.mode === 'habit') { txt.innerText = this.t('rob_hab'); btn.innerText = this.t('rob_hab_btn'); }
+        else if(this.mode === 'battery') { txt.innerText = this.t('rob_bat'); btn.innerText = this.t('rob_bat_btn'); }
+        else { txt.innerText = this.t('rob_guide'); btn.innerText = this.t('rob_guide_btn'); }
+    }
+
+    // --- MODAL LOGIC ---
+    showModal(id = 'supportModal') { document.getElementById(id).classList.add('active'); }
+    closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+    // --- FEATURE: GUT CHECK ---
+    triggerDecision() {
+        // Show Gut Check Modal first
+        const btnA = document.getElementById('btnGutA');
+        const btnB = document.getElementById('btnGutB');
+        btnA.innerText = this.decisionData.optionA;
+        btnB.innerText = this.decisionData.optionB;
+        this.showModal('gutModal');
+    }
+
+    submitGutCheck(choice) {
+        this.gutChoice = choice === 'A' ? this.decisionData.optionA : this.decisionData.optionB;
+        this.closeModal('gutModal');
+        this.computeDecision();
+    }
+
+    // --- REPORT GENERATION ENGINE ---
+    async downloadPDF() {
+        const btn = document.querySelector('#actionButtons .btn-primary:last-child'); 
+        const originalText = btn.innerHTML;
+        btn.innerHTML = this.t('pdf_gen'); btn.style.opacity = 0.7;
+
+        const name = this.userName || "The Architect";
+        const date = new Date().toLocaleDateString();
+        const container = document.createElement('div');
+        container.className = 'pdf-report-container';
+        
+        let reportContent = `
+            <div class="pdf-header">
+                <div class="pdf-title">${this.t('pdf_title')}</div>
+                <div class="pdf-subtitle">${this.t('pdf_sub').replace('{name}', name)} • ${date}</div>
+            </div>
+        `;
+
+        if (this.mode === 'decision') {
+            let totalA = 0, totalB = 0;
+            this.decisionData.factors.forEach(f => { totalA += f.scoreA * f.weight; totalB += f.scoreB * f.weight; });
+            const winner = totalA > totalB ? this.decisionData.optionA : this.decisionData.optionB;
+            const diff = Math.abs(totalA - totalB);
+            
+            reportContent += `
+                <div class="pdf-section">
+                    <h3>${this.t('pdf_dilemma')}: ${this.decisionData.optionA} vs ${this.decisionData.optionB}</h3>
+                    <div style="font-size:24px; font-weight:800; color:#ff6b6b; margin-top:10px;">${this.t('win_txt')}: ${winner}</div>
+                    <p>Score Difference: ${diff} points</p>
+                </div>
+                <div class="pdf-section">
+                    <h3>${this.t('pdf_logic')}</h3>
+                    ${this.decisionData.factors.map(f => `
+                        <div class="pdf-list-item">
+                            <span>${f.name} (${this.t('lbl_imp')}: ${f.weight})</span>
+                            <span>${this.decisionData.optionA}: <strong>${f.scoreA}</strong> / ${this.decisionData.optionB}: <strong>${f.scoreB}</strong></span>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="pdf-img-container">
+                    <h4>${this.t('pdf_vis')}</h4>
+                    <img src="${document.getElementById('heatmapCanvas').toDataURL()}" style="max-width:400px; display:inline-block; margin-right:20px;">
+                    <img src="${document.getElementById('radarCanvas').toDataURL()}" style="max-width:300px; display:inline-block;">
+                </div>
+            `;
+        } 
+        else if (this.mode === 'habit') {
+            let insightHTML = "";
+            if (this.habitStats) {
+                insightHTML = `
+                <div class="pdf-section" style="background:#f4f4f5;">
+                    <h3>${this.t('hab_res_title')}</h3>
+                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
+                        <div><strong>${this.t('hab_worst')}</strong><br>${this.habitStats.p10}x</div>
+                        <div><strong>${this.t('hab_likely')}</strong><br>${this.habitStats.p50}x</div>
+                        <div><strong>${this.t('hab_best')}</strong><br>${this.habitStats.p90}x</div>
+                    </div>
+                </div>`;
+            }
+
+            reportContent += `
+                <div class="pdf-section">
+                    <h3>${this.t('pdf_sim')}: "${this.habitData.habitName}"</h3>
+                    <div class="pdf-list-item"><span>${this.t('lbl_success')}</span><span>${this.habitData.consistency}%</span></div>
+                    <div class="pdf-list-item"><span>${this.t('lbl_years')}</span><span>${this.habitData.years} Years</span></div>
+                </div>
+                ${insightHTML}
+                <div class="pdf-img-container">
+                    <h4>${this.t('pdf_traj')}</h4>
+                    <img src="${document.getElementById('growthCanvas').toDataURL()}" style="width:100%;">
+                </div>
+                <div class="pdf-img-container">
+                    <h4>${this.t('pdf_prob')}</h4>
+                    <img src="${document.getElementById('distributionCanvas').toDataURL()}" style="width:100%;">
+                </div>
+            `;
+        } 
+        else if (this.mode === 'battery') {
+            const adviceHTML = document.getElementById('advisorContainer').innerHTML;
+            reportContent += `
+                <div class="pdf-section">
+                    <h3>${this.t('pdf_topo')}</h3>
+                    <div class="pdf-list-item"><span>Chronotype</span><span>${this.batteryData.chronotype.toUpperCase()}</span></div>
+                    <div class="pdf-list-item"><span>Total Events</span><span>${this.batteryData.schedule.length}</span></div>
+                </div>
+                <div class="pdf-section">
+                    <h3>${this.t('pdf_daily')}</h3>
+                    ${this.batteryData.schedule.map(s => `
+                        <div class="pdf-list-item">
+                            <span>${s.name} <small>(${s.type})</small></span>
+                            <span style="color:${s.val>=0?'#4ecdc4':'#ff6b6b'}">${s.val>0?'+':''}${s.val}%</span>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="pdf-img-container">
+                    <img src="${document.getElementById('batteryCanvas').toDataURL()}" style="width:100%;">
+                </div>
+                <div class="pdf-section" style="background:#f4f4f5;">
+                    <h3>${this.t('pdf_ai')}</h3>
+                    ${adviceHTML}
+                </div>
+            `;
+        }
+        
+        container.innerHTML = reportContent;
+        document.body.appendChild(container);
+
+        try {
+            const canvas = await html2canvas(container, { 
+                scale: 2, 
+                useCORS: true,
+                alpha: false,
+                backgroundColor: '#fff9e6' 
+            });
+            const imgData = canvas.toDataURL('image/jpeg', 0.9);
+            
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+            
+            pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
+
+            pdf.setFont("Helvetica", "bold");
+            pdf.setFontSize(10);
+            pdf.setTextColor(100); 
+
+            const watermarkText = "Made by RileyShares.com with love";
+            
+            const textX = pdfWidth / 2;
+            const textY = pdfHeight + 10 > 297 ? 290 : pdfHeight + 10; 
+
+            pdf.text(watermarkText, textX, textY, { align: 'center' });
+
+            pdf.save(`Life_Debugger_Report_${name.replace(/\s+/g,'_')}.pdf`);
+            
+            this.showModal();
+
+        } catch(e) {
+            console.error(e);
+            alert("Error generating PDF. Please try again.");
+        }
+
+        document.body.removeChild(container);
+        btn.innerHTML = originalText;
+        btn.style.opacity = 1;
+    }
+
+    // --- DOM GENERATION ---
+    renderControls() {
+        const container = document.getElementById('controlsArea');
+        const actionArea = document.getElementById('actionButtons');
+        container.innerHTML = ''; actionArea.innerHTML = '';
+
+        if (this.mode === 'guide') {
+            container.innerHTML = `<div class="control-group"><div class="group-header">${this.t('toc')}</div><div class="toc-item" onclick="document.querySelector('.guide-card:nth-child(1)').scrollIntoView({behavior:'smooth'})">${this.t('toc_1')}</div><div class="toc-item" onclick="document.querySelector('.guide-card:nth-child(2)').scrollIntoView({behavior:'smooth'})">${this.t('toc_2')}</div><div class="toc-item" onclick="document.querySelector('.guide-card:nth-child(3)').scrollIntoView({behavior:'smooth'})">${this.t('toc_3')}</div></div>`;
+            actionArea.innerHTML = `<button class="btn-primary" onclick="app.switchMode('decision')">${this.t('btn_back')}</button>`;
+            return;
+        }
+
+        const commonButtons = `<div style="display:flex; flex-direction:column; gap:10px; margin-top:15px;"><button class="btn-secondary" onclick="app.resetData()">${this.t('reset_btn')}</button><button class="btn-primary" style="background:#000; color:#fff; font-size:14px;" onclick="app.downloadPDF()">${this.t('pdf_btn')}</button></div>`;
+
+        if (this.mode === 'battery') {
+            container.innerHTML = `<div class="control-group"><div class="group-header">${this.t('group_event')}</div><div class="custom-act-box"><div class="type-selector"><div class="type-btn t-work active" onclick="app.selectType('work', this)">${this.t('type_work')}</div><div class="type-btn t-social" onclick="app.selectType('social', this)">${this.t('type_social')}</div><div class="type-btn t-phys" onclick="app.selectType('phys', this)">${this.t('type_phys')}</div><div class="type-btn t-rest" onclick="app.selectType('rest', this)">${this.t('type_rest')}</div></div><div class="custom-flex"><input id="newActName" class="std-input" placeholder="Event Name" style="flex:2;"><input id="newActVal" class="std-input" type="number" placeholder="%" style="flex:1;"></div><button class="btn-primary" style="padding:10px; font-size:14px;" onclick="app.addCustomAct()">${this.t('btn_add_block')}</button></div><div class="group-header">${this.t('group_timeline')}</div><div id="scheduleList"></div></div>`;
+            actionArea.innerHTML = commonButtons;
+            this.renderScheduleList(); this.updateAdvisor(); return;
+        }
+
+        if (this.mode === 'decision') {
+            container.innerHTML = `<div class="control-group"><div class="group-header">${this.t('group_battle')}</div><div class="input-wrapper"><label class="input-label">${this.t('lbl_opt_a')}</label><input class="std-input" value="${this.decisionData.optionA}" oninput="app.updateOptionName('A', this.value)"></div><div class="input-wrapper"><label class="input-label">${this.t('lbl_opt_b')}</label><input class="std-input" value="${this.decisionData.optionB}" oninput="app.updateOptionName('B', this.value)"></div></div><div class="control-group"><div class="group-header">${this.t('group_factors')}</div><div id="factorsList"></div><button class="btn-secondary" onclick="app.addFactor()">${this.t('btn_add_factor')}</button></div>`;
+            // Trigger Decision Modified
+            actionArea.innerHTML = `<button class="btn-primary" onclick="app.triggerDecision()">${this.t('btn_make_dec')}</button>${commonButtons}`;
+            this.renderFactorsList();
+        } else {
+            // Added 2-Day Rule Checkbox
+            container.innerHTML = `<div class="control-group"><div class="group-header">${this.t('group_habit')}</div><div class="input-wrapper"><label class="input-label">${this.t('lbl_habit_name')}</label><input class="std-input" value="${this.habitData.habitName}" oninput="app.habitData.habitName=this.value"></div><div class="input-wrapper"><label class="input-label">${this.t('lbl_success')}</label><input type="range" min="1" max="100" value="${this.habitData.consistency}" oninput="app.updateHabit('consistency', this.value)"><div style="text-align:right; font-size:12px; font-weight:700;">${this.habitData.consistency}% ${this.t('lbl_consistent')}</div></div><div class="input-wrapper"><label class="input-label">${this.t('lbl_years')}</label><input type="number" class="std-input" value="${this.habitData.years}" oninput="app.updateHabit('years', this.value)"></div><div style="display:flex; align-items:center; gap:10px; margin-top:20px; padding:10px; border:2px dashed #000; border-radius:8px;"><input type="checkbox" id="chkTwoDay" ${this.habitData.twoDayRule ? 'checked' : ''} onchange="app.habitData.twoDayRule=this.checked"><label for="chkTwoDay" style="font-weight:700; font-size:14px; cursor:pointer;">${this.t('chk_2day')}</label></div></div>`;
+            actionArea.innerHTML = `<button class="btn-primary" onclick="app.runSimulation()">${this.t('btn_run_sim')}</button>${commonButtons}`;
+        }
+    }
+
+    renderFactorsList() {
+        const list = document.getElementById('factorsList'); if(!list) return; list.innerHTML = '';
+        this.decisionData.factors.forEach((f, idx) => {
+            const card = document.createElement('div'); card.className = 'factor-card';
+            card.innerHTML = `<div class="factor-header"><input class="factor-title" value="${f.name}" oninput="app.updateFactor(${idx}, 'name', this.value)"><button style="background:transparent; border:none; color:#ff6b6b; cursor:pointer; font-weight:900;" onclick="app.removeFactor(${idx})">✖</button></div><div class="slider-group"><span class="slider-label">${this.t('lbl_imp')}</span><input type="range" min="1" max="10" value="${f.weight}" oninput="app.updateFactor(${idx}, 'weight', this.value)"><span class="slider-label">${f.weight}</span></div><div style="height:2px; background:#000; margin:10px 0; opacity:0.1;"></div><div class="slider-group"><span class="slider-label" style="color:var(--primary)">A</span><input type="range" min="1" max="10" value="${f.scoreA}" oninput="app.updateFactor(${idx}, 'scoreA', this.value)"><span class="slider-label">${f.scoreA}</span></div><div class="slider-group"><span class="slider-label" style="color:var(--accent-teal)">B</span><input type="range" min="1" max="10" value="${f.scoreB}" oninput="app.updateFactor(${idx}, 'scoreB', this.value)"><span class="slider-label">${f.scoreB}</span></div>`;
+            list.appendChild(card);
+        });
+    }
+
+    selectType(type, btnElement) { this.batteryData.currentTypeSelection = type; document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active')); btnElement.classList.add('active'); }
+    addCustomAct() { const name = document.getElementById('newActName').value; const valInput = document.getElementById('newActVal').value; let val = parseInt(valInput); if(!name || isNaN(val)) return; const type = this.batteryData.currentTypeSelection; if ((type === 'work' || type === 'social') && val > 0) val = -val; this.addActivity(name, val, type); document.getElementById('newActName').value = ''; document.getElementById('newActVal').value = ''; }
+    addActivity(name, val, type = 'work') { if(this.batteryData.schedule.length >= 16) { alert("Day is full!"); return; } this.batteryData.schedule.push({ name, val, type }); this.renderScheduleList(); this.updateVisuals(); this.updateAdvisor(); }
+    removeActivity(idx) { if(idx===0) return; this.batteryData.schedule.splice(idx, 1); this.renderScheduleList(); this.updateVisuals(); this.updateAdvisor(); }
+    updateChronotype(val) { this.batteryData.chronotype = val; this.updateVisuals(); this.updateAdvisor(); }
+    renderScheduleList() {
+        const list = document.getElementById('scheduleList'); if(!list) return; list.innerHTML = '';
+        let hour = 8; const colorMap = { work: '#90e0ef', social: '#ff6b6b', phys: '#ffe66d', rest: '#4ecdc4' };
+        this.batteryData.schedule.forEach((item, i) => {
+            let t = hour > 12 ? (hour-12)+"PM" : hour+(hour==12?"PM":"AM"); hour++;
+            const div = document.createElement('div'); div.className = 'schedule-item'; div.style.display = 'flex'; div.style.justifyContent = 'space-between'; div.style.padding = '10px';
+            div.innerHTML = `<div style="display:flex; align-items:center;"><span style="font-family:'JetBrains Mono'; color:#aaa; font-size:11px; width:40px;">${t}</span><div class="sched-type-dot" style="background:${colorMap[item.type]}"></div><span style="font-weight:700; font-size:14px;">${item.name}</span></div><div style="display:flex; align-items:center; gap:10px;"><span style="font-weight:800; color:${item.val>0?'var(--accent-teal)':'var(--primary)'};">${item.val>0?'+':''}${item.val}%</span>${i>0 ? `<button style="color:#aaa; border:none; background:none; cursor:pointer; font-size:18px;" onclick="app.removeActivity(${i})">×</button>` : ''}</div>`;
+            list.appendChild(div);
+        });
+    }
+    getCircadianFactor(hour, type) { let peaks = { bear: [11, 15], lion: [8, 13], wolf: [14, 20], dolphin: [10, 16] }; let p = peaks[type] || peaks.bear; let m = Math.exp(-Math.pow(hour - p[0], 2) / 8) * 100; let a = Math.exp(-Math.pow(hour - p[1], 2) / 8) * 90; return Math.max(Math.max(m, a), 30); }
+    updateAdvisor() {
+        const container = document.getElementById('advisorContainer'); if (!container) return;
+        let insights = []; const sched = this.batteryData.schedule; const typeCounts = { work:0, social:0, rest:0, phys:0 }; let current = 100; let minVal = 100; let consecWork = 0; let maxConsecWork = 0;
+        sched.forEach(s => { if(typeCounts[s.type] !== undefined) typeCounts[s.type]++; current += s.val; if (current < minVal) minVal = current; if(s.type === 'work') { consecWork++; } else { maxConsecWork = Math.max(maxConsecWork, consecWork); consecWork = 0; } });
+        maxConsecWork = Math.max(maxConsecWork, consecWork);
+        if (typeCounts.work > typeCounts.rest + 2) insights.push(`<span style="color:#90e0ef">${this.t('adv_load')}</span> ${this.t('adv_load_desc').replace('{w}', typeCounts.work).replace('{r}', typeCounts.rest)}`);
+        if (maxConsecWork > 3) insights.push(`<span style="color:#ff6b6b">${this.t('adv_diminish')}</span> ${this.t('adv_diminish_desc').replace('{c}', maxConsecWork)}`);
+        if (this.batteryData.chronotype === 'wolf' && sched.length > 0 && sched[0].val < 0) insights.push(`<span style="color:#000">${this.t('adv_wolf')}</span> ${this.t('adv_wolf_desc')}`);
+        if (minVal < 20) insights.push(`<span style="color:red; font-weight:bold;">${this.t('adv_crit')}</span> ${this.t('adv_crit_desc').replace('{m}', minVal)}`);
+        // --- FEATURE: SLEEP DEBT ---
+        if (current < 20) insights.push(`<span style="color:red;">${this.t('adv_debt')}</span> ${this.t('adv_debt_desc').replace('{v}', current)}`);
+
+        if (insights.length === 0) insights.push(this.t('adv_opt'));
+        container.innerHTML = `<div class="advisor-panel"><div class="advisor-header">${this.t('adv_header')}</div>${insights.map(i => `<div class="insight-item">${i}</div>`).join('')}</div>`;
+    }
+
+    updateOptionName(opt, val) { this.decisionData[`option${opt}`] = val; this.hideWinner(); this.updateVisuals(); }
+    updateFactor(idx, key, val) { if(key === 'name') this.decisionData.factors[idx][key] = val; else { this.decisionData.factors[idx][key] = parseInt(val); const spans = document.querySelectorAll('.factor-card')[idx].querySelectorAll('.slider-label'); if (key === 'weight') spans[1].innerText = val; if (key === 'scoreA') spans[3].innerText = val; if (key === 'scoreB') spans[5].innerText = val; } this.hideWinner(); this.updateVisuals(); }
+    addFactor() { this.decisionData.factors.push({ id: Date.now(), name: 'New Factor', weight: 5, scoreA: 5, scoreB: 5 }); this.renderFactorsList(); this.hideWinner(); this.updateVisuals(); }
+    removeFactor(idx) { this.decisionData.factors.splice(idx, 1); this.renderFactorsList(); this.hideWinner(); this.updateVisuals(); }
+    updateHabit(key, val) { this.habitData[key] = parseFloat(val); }
+    updateVisuals() { if (this.mode === 'decision') requestAnimationFrame(() => { this.drawHeatmap(); this.drawRadar(); }); else if (this.mode === 'battery') requestAnimationFrame(() => { this.drawBatteryGraph(); }); }
+    hideWinner() { const box = document.getElementById('decisionSummary'); if(box) box.classList.remove('active'); }
+    
+    computeDecision(silent = false) {
+        let totalA = 0, totalB = 0, maxPossible = 0;
+        this.decisionData.factors.forEach(f => { totalA += f.scoreA * f.weight; totalB += f.scoreB * f.weight; maxPossible += 10 * f.weight; });
+        const winner = totalA > totalB ? this.decisionData.optionA : this.decisionData.optionB;
+        const color = totalA > totalB ? '#ff6b6b' : '#4ecdc4';
+        const diff = Math.abs(totalA - totalB);
+        const confidence = Math.min(Math.round((diff / (maxPossible * 0.4)) * 100), 99); 
+        
+        let gutMsg = "";
+        if (this.gutChoice) {
+            if (this.gutChoice === winner) {
+                gutMsg = `<div style="margin-top:10px; color:#4ecdc4; font-weight:bold; font-size:14px;">${this.t('gut_match')}</div>`;
+            } else {
+                gutMsg = `<div style="margin-top:10px; color:#ff6b6b; font-weight:bold; font-size:14px;">${this.t('gut_mismatch').replace('{win}', winner).replace('{gut}', this.gutChoice)}</div>`;
+            }
+        }
+
+        const winBox = document.getElementById('decisionSummary'); winBox.classList.add('active'); 
+        winBox.innerHTML = `<div class="winner-text">${this.t('win_txt')}: <span style="color:${color}; text-decoration:underline;">${winner}</span></div><div class="confidence-text">${this.t('conf_level')}: ${confidence}% 🚀</div><div style="font-size:12px; margin-top:5px; opacity:0.6;">${this.t('based_on')}</div>${gutMsg}`;
+        if (window.innerWidth <= 900) winBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        if (!silent) this.showModal();
+    }
+    
+    // Updated Simulation Logic with Stats & 2-Day Rule
+    runSimulation() {
+        const cvs = document.getElementById('growthCanvas'); if(!cvs || !cvs.parentElement) return;
+        const ctx = cvs.getContext('2d'); const parent = cvs.parentElement;
+        const dpr = window.devicePixelRatio || 1; const rect = parent.getBoundingClientRect();
+        cvs.width = rect.width * dpr; cvs.height = rect.height * dpr; ctx.scale(dpr, dpr);
+        const w = rect.width; const h = rect.height; ctx.clearRect(0,0,w,h);
+        const days = this.habitData.years * 365; const consistency = this.habitData.consistency / 100;
+        const rate = this.habitData.compoundRate; const sims = 50; 
+        const use2DayRule = this.habitData.twoDayRule; // FEATURE FLAG
+
+        let trajectories = []; let allEndValues = [];
+        for(let s=0; s<sims; s++) {
+            let path = []; let val = 1;
+            let missedYesterday = false;
+
+            for(let d=0; d<days; d++) { 
+                let hit = Math.random() < consistency;
+                
+                // FEATURE: 2-DAY RULE LOGIC
+                if (use2DayRule && missedYesterday) {
+                    hit = true; // Force success if missed yesterday
+                }
+
+                if (hit) {
+                    val = val * rate; 
+                    missedYesterday = false;
+                } else {
+                    missedYesterday = true;
+                }
+
+                if(d % 10 === 0) path.push(val); 
+            }
+            trajectories.push(path); allEndValues.push(val);
+        }
+
+        // --- STATS CALCULATION ---
+        allEndValues.sort((a,b) => a-b);
+        const p10 = allEndValues[Math.floor(sims*0.1)].toFixed(1);
+        const p50 = allEndValues[Math.floor(sims*0.5)].toFixed(1);
+        const p90 = allEndValues[Math.floor(sims*0.9)].toFixed(1);
+        
+        this.habitStats = { p10, p50, p90 };
+        this.renderHabitInsights(this.habitStats);
+
+        // --- DRAWING ---
+        const maxVal = Math.max(...allEndValues); const padding = 40; const graphW = w - padding * 2; const graphH = h - padding * 2;
+        
+        // Baseline (y=1)
+        const baseY = (h - padding) - (1 / maxVal) * graphH;
+        ctx.strokeStyle = "#ccc"; ctx.lineWidth = 2; ctx.setLineDash([5, 5]);
+        ctx.beginPath(); ctx.moveTo(padding, baseY); ctx.lineTo(w-padding, baseY); ctx.stroke(); ctx.setLineDash([]);
+        ctx.fillStyle = "#999"; ctx.fillText("Baseline", padding+10, baseY-5);
+
+        // Axes
+        ctx.strokeStyle = "#000"; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(padding, padding); ctx.lineTo(padding, h - padding); ctx.lineTo(w - padding, h - padding); ctx.stroke();
+        
+        // Trajectories
+        trajectories.forEach(path => {
+            ctx.beginPath(); ctx.strokeStyle = `rgba(255, 107, 107, 0.1)`; ctx.lineWidth = 1;
+            path.forEach((v, i) => { const x = padding + (i / path.length) * graphW; const y = (h - padding) - (v / maxVal) * graphH; if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); }); ctx.stroke();
+        });
+        
+        // Avg Path
+        ctx.beginPath(); ctx.strokeStyle = "#4ecdc4"; ctx.lineWidth = 4;
+        const avgPath = trajectories[0].map((_, i) => { let sum = 0; trajectories.forEach(t => sum += t[i]); return sum / sims; });
+        avgPath.forEach((v, i) => { const x = padding + (i / avgPath.length) * graphW; const y = (h - padding) - (v / maxVal) * graphH; if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); }); ctx.stroke();
+        
+        this.drawDistribution(allEndValues);
+        if (window.innerWidth <= 900) { document.getElementById('habitSummary').scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+        
+        this.showModal();
+    }
+
+    renderHabitInsights(stats) {
+        const box = document.getElementById('habitSummary');
+        box.classList.add('active');
+        box.innerHTML = `
+            <div class="winner-text" style="font-size:20px;">${this.t('hab_res_title')}</div>
+            <div class="insight-grid">
+                <div class="stat-block">
+                    <span class="stat-label" style="color:#ff6b6b">${this.t('hab_worst')}</span>
+                    <span class="stat-val">${stats.p10}x</span>
+                </div>
+                <div class="stat-block">
+                    <span class="stat-label" style="color:#4ecdc4">${this.t('hab_likely')}</span>
+                    <span class="stat-val">${stats.p50}x</span>
+                </div>
+                <div class="stat-block">
+                    <span class="stat-label" style="color:#ffe66d; text-shadow:0 0 1px #000;">${this.t('hab_best')}</span>
+                    <span class="stat-val">${stats.p90}x</span>
+                </div>
+            </div>
+            <div class="stat-desc">
+                ${this.t('hab_desc').replace('{x}', stats.p50)}
+            </div>
+        `;
+    }
+
+    drawDistribution(values) {
+        const cvs = document.getElementById('distributionCanvas'); if(!cvs || !cvs.parentElement) return;
+        const ctx = cvs.getContext('2d'); const parent = cvs.parentElement;
+        const dpr = window.devicePixelRatio || 1; const rect = parent.getBoundingClientRect();
+        cvs.width = rect.width * dpr; cvs.height = rect.height * dpr; ctx.scale(dpr, dpr);
+        const w = rect.width; const h = rect.height; ctx.clearRect(0,0,w,h);
+        const buckets = 20; const min = Math.min(...values); const max = Math.max(...values);
+        const counts = new Array(buckets).fill(0);
+        values.forEach(v => { let b = Math.floor(((v - min) / (max - min)) * buckets); if(b >= buckets) b = buckets - 1; counts[b]++; });
+        const maxCount = Math.max(...counts); const barW = (w - 40) / buckets;
+        
+        // Bars
+        counts.forEach((c, i) => {
+            const hBar = (c / maxCount) * (h - 60); const x = 20 + i * barW; const y = h - 40 - hBar;
+            ctx.fillStyle = `rgba(167, 139, 250, ${0.4 + (c/maxCount)*0.6})`; ctx.fillRect(x, y, barW - 2, hBar); ctx.strokeRect(x, y, barW - 2, hBar);
+            
+            // X Axis Labels (Simplified)
+            if (i % 4 === 0) {
+                const labelVal = min + (i/buckets)*(max-min);
+                ctx.fillStyle = "#666"; ctx.font = "600 10px 'JetBrains Mono'"; ctx.textAlign = "center";
+                ctx.fillText(labelVal.toFixed(1)+"x", x + barW/2, h - 25);
+            }
+        });
+        ctx.fillStyle = "#000"; ctx.textAlign = "left"; ctx.font = "700 12px 'Space Grotesk'"; ctx.fillText(this.t('chart_dist_sub'), 20, h - 5);
+    }
+
+    drawHeatmap() {
+        const cvs = document.getElementById('heatmapCanvas'); if(!cvs || !cvs.parentElement) return;
+        const ctx = cvs.getContext('2d'); const parent = cvs.parentElement; const dpr = window.devicePixelRatio || 1; const rect = parent.getBoundingClientRect(); if(rect.width===0) return;
+        cvs.width = rect.width * dpr; cvs.height = rect.height * dpr; ctx.scale(dpr, dpr);
+        const w = rect.width; const h = rect.height; const factors = this.decisionData.factors; ctx.clearRect(0, 0, w, h);
+        const rowH = (h - 60) / Math.max(factors.length, 1); const colW = (w - 160) / 2;
+        ctx.font = "700 14px 'Space Grotesk'"; ctx.fillStyle = "#000"; ctx.fillText(this.t('lbl_opt_a').toUpperCase(), 170, 25); ctx.fillText(this.t('lbl_opt_b').toUpperCase(), 170 + colW + 10, 25);
+        factors.forEach((f, i) => {
+            const y = 40 + (i * rowH);
+            ctx.fillStyle = "#000"; ctx.textAlign = "right"; ctx.textBaseline = "middle"; ctx.font = "700 13px 'Fredoka'";
+            ctx.fillText(f.name.substring(0,15), 150, y + rowH/2);
+            ctx.fillStyle = `rgba(255, 107, 107, ${0.2 + (f.scoreA/10 * 0.8)})`; ctx.fillRect(170, y + 2, colW - 5, rowH - 4); ctx.strokeRect(170, y + 2, colW - 5, rowH - 4);
+            ctx.fillStyle = `rgba(78, 205, 196, ${0.2 + (f.scoreB/10 * 0.8)})`; ctx.fillRect(170 + colW + 5, y + 2, colW - 5, rowH - 4); ctx.strokeRect(170 + colW + 5, y + 2, colW - 5, rowH - 4);
+            ctx.textAlign = "center"; ctx.fillStyle = "#000"; ctx.font = "700 16px 'Space Grotesk'";
+            ctx.fillText(f.scoreA, 170 + colW/2, y + rowH/1.8); ctx.fillText(f.scoreB, 170 + colW + 5 + colW/2, y + rowH/1.8);
+        });
+    }
+
+    drawRadar() {
+        const cvs = document.getElementById('radarCanvas'); if(!cvs || !cvs.parentElement) return;
+        const ctx = cvs.getContext('2d'); const parent = cvs.parentElement; const dpr = window.devicePixelRatio || 1; const rect = parent.getBoundingClientRect();
+        cvs.width = rect.width * dpr; cvs.height = rect.height * dpr; ctx.scale(dpr, dpr);
+        const w = rect.width; const h = rect.height; const cx = w / 2; const cy = h / 2; const r = Math.min(w, h) / 2 - 50;
+        const factors = this.decisionData.factors; const count = factors.length; ctx.clearRect(0, 0, w, h);
+        if(count < 3) { ctx.fillStyle = "#000"; ctx.textAlign = "center"; ctx.fillText("Add 3+ factors for radar!", cx, cy); return; }
+        ctx.strokeStyle = "#ddd"; ctx.lineWidth = 1;
+        for(let level=1; level<=5; level++) { ctx.beginPath(); for(let i=0; i<count; i++) { const angle = (Math.PI * 2 * i) / count - Math.PI / 2; const dist = (r / 5) * level; if(i===0) ctx.moveTo(cx + Math.cos(angle) * dist, cy + Math.sin(angle) * dist); else ctx.lineTo(cx + Math.cos(angle) * dist, cy + Math.sin(angle) * dist); } ctx.closePath(); ctx.stroke(); }
+        factors.forEach((f, i) => {
+            const angle = (Math.PI * 2 * i) / count - Math.PI / 2; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + Math.cos(angle) * r, cy + Math.sin(angle) * r);
+            ctx.strokeStyle = "#000"; ctx.lineWidth=2; ctx.stroke(); ctx.fillStyle = "#000"; ctx.textAlign = "center"; ctx.font = "700 12px 'Fredoka'";
+            const lx = cx + Math.cos(angle) * (r + 20); const ly = cy + Math.sin(angle) * (r + 20); ctx.fillText(f.name.substring(0,10), lx, ly);
+        });
+        const drawShape = (key, fill) => {
+            ctx.beginPath(); factors.forEach((f, i) => { const angle = (Math.PI * 2 * i) / count - Math.PI / 2; const dist = r * (f[key] / 10); const x = cx + Math.cos(angle) * dist; const y = cy + Math.sin(angle) * dist; if(i===0) ctx.moveTo(x, y); else ctx.lineTo(x, y); }); ctx.closePath(); ctx.strokeStyle = "#000"; ctx.lineWidth = 3; ctx.stroke(); ctx.fillStyle = fill; ctx.fill();
+        };
+        drawShape('scoreA', 'rgba(255, 107, 107, 0.5)'); drawShape('scoreB', 'rgba(78, 205, 196, 0.5)');
+    }
+
+    drawBatteryGraph() {
+        const cvs = document.getElementById('batteryCanvas'); if(!cvs || !cvs.parentElement) return;
+        const ctx = cvs.getContext('2d'); const parent = cvs.parentElement; const dpr = window.devicePixelRatio || 1; const rect = parent.getBoundingClientRect();
+        cvs.width = rect.width * dpr; cvs.height = rect.height * dpr; ctx.scale(dpr, dpr);
+        const w = rect.width; const h = rect.height; ctx.clearRect(0,0,w,h);
+        
+        const schedule = this.batteryData.schedule;
+        const chronotype = this.batteryData.chronotype || 'bear';
+        let current = 100;
+        let actualPoints = []; let naturalPoints = []; let startHour = 8; 
+
+        schedule.forEach((item, i) => {
+            let hour = startHour + i;
+            current = current + item.val; if(current > 100) current = 100; if(current < 0) current = 0;
+            actualPoints.push({ x: i, y: current, type: item.type });
+            naturalPoints.push({ x: i, y: this.getCircadianFactor(hour, chronotype) });
+        });
+
+        const padX = 40; const padY = 30; const graphW = w - (padX*2); const graphH = h - (padY*2);
+        const stepX = graphW / Math.max(schedule.length-1, 1);
+        const getX = (i) => padX + (i * stepX); const getY = (val) => padY + graphH - ((val/100)*graphH);
+
+        // Danger Zone
+        ctx.fillStyle = "#fff0f0"; ctx.fillRect(padX, getY(20), graphW, getY(0)-getY(20));
+        ctx.strokeStyle = "#ffcccc"; ctx.beginPath(); ctx.moveTo(padX, getY(20)); ctx.lineTo(padX+graphW, getY(20)); ctx.stroke();
+        ctx.fillStyle = "#ff6b6b"; ctx.font = "700 10px 'Space Grotesk'"; ctx.fillText("BURNOUT ZONE", padX+5, h-10);
+
+        // Natural Baseline
+        ctx.beginPath(); ctx.strokeStyle = "#ccc"; ctx.lineWidth = 2; ctx.setLineDash([5, 5]);
+        naturalPoints.forEach((p, i) => { let x = getX(i); let y = getY(p.y); if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); });
+        ctx.stroke(); ctx.setLineDash([]);
+        let lastNat = naturalPoints[naturalPoints.length-1];
+        ctx.fillStyle = "#999"; ctx.fillText(this.t('lbl_nat'), getX(lastNat.x)-60, getY(lastNat.y)-10);
+
+        // Actual Battery
+        ctx.beginPath(); ctx.strokeStyle = "#000"; ctx.lineWidth = 4;
+        actualPoints.forEach((p, i) => { let x = getX(i); let y = getY(p.y); if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); });
+        ctx.stroke();
+        ctx.lineTo(getX(actualPoints.length-1), getY(0)); ctx.lineTo(getX(0), getY(0)); ctx.fillStyle = "rgba(78, 205, 196, 0.1)"; ctx.fill();
+
+        // Points
+        const colorMap = { work: '#90e0ef', social: '#ff6b6b', phys: '#ffe66d', rest: '#4ecdc4' };
+        actualPoints.forEach((p, i) => {
+            let cx = getX(i); let cy = getY(p.y);
+            if (i > 0) { let prevY = getY(actualPoints[i-1].y); if (cy - prevY > 30) { ctx.fillStyle = "#ff0000"; ctx.font="10px Arial"; ctx.fillText("▼", cx-4, (cy+prevY)/2); } }
+            ctx.beginPath(); ctx.arc(cx, cy, 6, 0, Math.PI*2);
+            ctx.fillStyle = colorMap[p.type] || '#000'; 
+            ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = "#000"; ctx.stroke();
+        });
+    }
+}
+
+const app = new LifeArchitect();
+</script>
+
+</body></html>
