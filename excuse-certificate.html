@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Generate an Official Certificate of Technical Innocence after your bug vanished in front of witnesses.">
+<title>Certificate of Technical Innocence</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Quicksand:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  html, body { margin:0; padding:0; background:transparent; }
+  #rt { all:initial; font-family:'Quicksand',system-ui,sans-serif; display:block; max-width:680px; margin:0 auto; padding:34px; color:#40364F; line-height:1.6;
+    background:linear-gradient(150deg,#F0F6FF 0%,#F6F0FC 45%,#FFF1F6 100%); border:1px solid #E9E3F2; border-radius:28px; box-shadow:0 20px 60px rgba(140,140,190,.15); }
+  #rt * { box-sizing:border-box; font-family:inherit; }
+  #rt .eyebrow { display:block; text-align:center; font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:#7FB6E8; font-weight:700; margin:0 0 8px; }
+  #rt .title { font-family:'Fraunces',serif; display:block; text-align:center; font-size:28px; font-weight:800; margin:0 0 8px; }
+  #rt .sub { display:block; text-align:center; font-size:14px; color:#8A7E96; margin:0 0 24px; }
+  #rt .card { background:#fff; border:1px solid #ECE6F3; border-radius:22px; padding:22px; margin-bottom:16px; box-shadow:0 8px 22px rgba(140,140,190,.10); }
+  #rt label.field { display:block; font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#8A7E96; margin:14px 0 6px; }
+  #rt label.field:first-child { margin-top:0; }
+  #rt input[type=text], #rt select { width:100%; padding:12px 14px; font-size:14.5px; color:#40364F; background:#FAF8FD; border:2px solid #ECE6F3; border-radius:14px; }
+  #rt button { display:block; width:100%; margin-top:18px; padding:14px; border:none; border-radius:999px; font-weight:700; font-size:15px; color:#fff;
+    background:linear-gradient(120deg,#7FB6E8,#B79CED); cursor:pointer; }
+  #rt .again { background:transparent; border:2px solid #E3DCEF; color:#8A7E96; margin-top:10px; }
+  #rt .cert { display:none; border:3px double #B79CED; border-radius:18px; padding:30px; text-align:center; background:#fffdf9; position:relative; }
+  #rt .seal { width:70px; height:70px; border-radius:50%; border:3px solid #FF8FAB; display:flex; align-items:center; justify-content:center; margin:0 auto 14px; font-family:'Space Mono',monospace; font-size:10px; color:#FF8FAB; text-align:center; }
+  #rt .certTitle { font-family:'Fraunces',serif; font-size:22px; font-weight:800; margin-bottom:4px; }
+  #rt .motto { font-family:'Space Mono',monospace; font-style:italic; font-size:12px; color:#B79CED; margin-bottom:18px; }
+  #rt .certBody { font-size:15px; margin-bottom:16px; }
+  #rt .certBody b { color:#40364F; }
+  #rt .certMeta { font-family:'Space Mono',monospace; font-size:11px; color:#8A7E96; border-top:1px dashed #E3DCEF; padding-top:12px; margin-top:10px; }
+</style>
+</head>
+<body>
+<div id="rt">
+  <span class="eyebrow">Vindication Tool</span>
+  <span class="title">Certificate of Technical Innocence</span>
+  <span class="sub">For when the bug disappears the moment someone credible shows up.</span>
+
+  <div class="card" id="formCard">
+    <label class="field">What broke</label>
+    <input type="text" id="fWhat" placeholder="e.g. the deployment pipeline">
+    <label class="field">Who witnessed it fix itself</label>
+    <input type="text" id="fWho" placeholder="e.g. the IT guy, my manager">
+    <label class="field">How long you two stared at it together</label>
+    <select id="fTime">
+      <option>4 minutes</option><option>11 minutes</option><option>27 minutes</option>
+      <option>a full lunch break</option><option>long enough to question my career</option>
+    </select>
+    <button onclick="rtGen()">Generate my certificate</button>
+  </div>
+
+  <div class="card cert" id="certCard">
+    <div class="seal">OFFICIAL<br>SEAL</div>
+    <div class="certTitle">Certificate of Technical Innocence</div>
+    <div class="motto">"Culpa Non Mea" — Not My Fault</div>
+    <div class="certBody">This certifies that <b id="cWhat"></b> was, in fact, broken, and that <b id="cWho"></b> personally witnessed <b id="cTime"></b> of unexplainable, self-resolving failure.</div>
+    <div class="certBody">No further doubt regarding the reporter's credibility shall be entertained.</div>
+    <div class="certMeta" id="cMeta"></div>
+  </div>
+  <button class="again" style="display:none" id="againBtn" onclick="rtReset()">Start over</button>
+</div>
+<script>
+(function(){
+  window.rtGen = function(){
+    var w = document.getElementById('fWhat').value.trim() || 'the system';
+    var who = document.getElementById('fWho').value.trim() || 'a witness';
+    var t = document.getElementById('fTime').value;
+    document.getElementById('cWhat').textContent = w;
+    document.getElementById('cWho').textContent = who;
+    document.getElementById('cTime').textContent = t;
+    var d = new Date();
+    document.getElementById('cMeta').textContent = 'Issued ' + d.toLocaleDateString() + ' · Cert #' + Math.floor(Math.random()*90000+10000) + ' · Valid until someone actually checks the logs';
+    document.getElementById('formCard').style.display = 'none';
+    document.getElementById('certCard').style.display = 'block';
+    document.getElementById('againBtn').style.display = 'block';
+  };
+  window.rtReset = function(){
+    document.getElementById('formCard').style.display = 'block';
+    document.getElementById('certCard').style.display = 'none';
+    document.getElementById('againBtn').style.display = 'none';
+  };
+})();
+</script>
+</body>
+</html>

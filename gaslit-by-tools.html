@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Diagnostic quiz for engineers whose tools, code, or database might be gaslighting them.">
+<title>Am I Being Gaslit By My Own Tools?</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Quicksand:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  html, body { margin:0; padding:0; background:transparent; }
+  #rt { all:initial; font-family:'Quicksand','Segoe UI',system-ui,sans-serif; display:block; position:relative; box-sizing:border-box;
+    max-width:680px; margin:0 auto; padding:34px; color:#40364F; line-height:1.6;
+    background:linear-gradient(150deg,#F0F6FF 0%,#F6F0FC 45%,#FFF1F6 100%);
+    border:1px solid #E9E3F2; border-radius:28px; box-shadow:0 20px 60px rgba(140,140,190,.15); }
+  #rt * { box-sizing:border-box; font-family:inherit; }
+  #rt .eyebrow { display:block; text-align:center; font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:#FF8FAB; font-weight:700; margin:0 0 8px; }
+  #rt .title { font-family:'Fraunces',Georgia,serif; display:block; text-align:center; font-size:30px; line-height:1.15; font-weight:800; margin:0 0 8px; color:#40364F; }
+  #rt .sub { display:block; text-align:center; font-size:14.5px; color:#8A7E96; margin:0 0 26px; }
+  #rt .card { background:#fff; border:1px solid #ECE6F3; border-radius:22px; padding:20px 22px; margin-bottom:14px; box-shadow:0 8px 22px rgba(140,140,190,.10); }
+  #rt .opt { display:flex; align-items:flex-start; gap:12px; padding:11px 4px; border-bottom:1px solid #F3EFF8; cursor:pointer; }
+  #rt .opt:last-child { border-bottom:none; }
+  #rt .opt input { margin-top:3px; width:18px; height:18px; accent-color:#FF8FAB; flex-shrink:0; cursor:pointer; }
+  #rt .opt label { font-size:14.5px; cursor:pointer; }
+  #rt .opt .weight { font-family:'Space Mono',monospace; font-size:10.5px; color:#B7AFC5; margin-left:auto; padding-left:8px; white-space:nowrap; flex-shrink:0; }
+  #rt button { display:block; width:100%; margin-top:6px; padding:14px; border:none; border-radius:999px; font-family:'Quicksand',sans-serif; font-weight:700; font-size:15px; color:#fff;
+    background:linear-gradient(120deg,#FF8FAB,#B79CED); cursor:pointer; transition:transform .15s ease; }
+  #rt button:active { transform:scale(.98); }
+  #rt .result { display:none; text-align:center; }
+  #rt .score { font-family:'Fraunces',serif; font-size:56px; font-weight:800; color:#FF8FAB; margin:6px 0 2px; }
+  #rt .verdict { font-size:17px; font-weight:700; margin-bottom:10px; }
+  #rt .cite { font-family:'Space Mono',monospace; font-size:11.5px; color:#8A7E96; background:#FAF8FD; border:1px dashed #E3DCEF; border-radius:12px; padding:12px 14px; text-align:left; margin-top:14px; }
+  #rt .again { background:transparent; border:2px solid #E3DCEF; color:#8A7E96; margin-top:12px; }
+</style>
+</head>
+<body>
+<div id="rt">
+  <span class="eyebrow">Diagnostic Tool</span>
+  <span class="title">Am I Being Gaslit By My Own Tools?</span>
+  <span class="sub">Answer honestly. Your machine is listening, and it will deny everything.</span>
+
+  <div class="card" id="quizCard">
+    <div class="opt"><input type="checkbox" id="q1" data-w="12"><label for="q1">"It worked yesterday"</label><span class="weight">+12</span></div>
+    <div class="opt"><input type="checkbox" id="q2" data-w="10"><label for="q2">"Works on my machine"</label><span class="weight">+10</span></div>
+    <div class="opt"><input type="checkbox" id="q3" data-w="14"><label for="q3">"I didn't change anything, I swear"</label><span class="weight">+14</span></div>
+    <div class="opt"><input type="checkbox" id="q4" data-w="11"><label for="q4">Database threw an error, now it's fine, no idea why</label><span class="weight">+11</span></div>
+    <div class="opt"><input type="checkbox" id="q5" data-w="20"><label for="q5">Called IT/a coworker over, we stared at it together, it fixed itself the second they arrived</label><span class="weight">+20</span></div>
+    <div class="opt"><input type="checkbox" id="q6" data-w="13"><label for="q6">Tool crashed 5 times, now runs perfectly, refuses to explain itself</label><span class="weight">+13</span></div>
+    <div class="opt"><input type="checkbox" id="q7" data-w="15"><label for="q7">Code diff shows nothing changed but behavior is different</label><span class="weight">+15</span></div>
+    <div class="opt"><input type="checkbox" id="q8" data-w="9"><label for="q8">Error message makes zero sense, Googling it returns 0 results</label><span class="weight">+9</span></div>
+  </div>
+
+  <button id="calcBtn" onclick="rtCalc()">Calculate my gaslighting score</button>
+
+  <div class="card result" id="resultCard">
+    <div class="score" id="scoreOut">0%</div>
+    <div class="verdict" id="verdictOut"></div>
+    <div class="cite" id="citeOut"></div>
+    <button class="again" onclick="rtReset()">Take it again (it'll be different this time, promise)</button>
+  </div>
+</div>
+<script>
+(function(){
+  var verdicts = [
+    [0,20,"You're fine. Suspiciously fine. Trust nothing.","Journal of Digital Trauma, Vol.1: 'Baseline Denial and the Myth of the Stable System.'"],
+    [20,45,"Mild gaslighting detected. Your tools are testing the waters.","Stack Overflow Journal of Digital Trauma, Vol.2: 'Early-Stage Machine Dishonesty in Junior Engineers.'"],
+    [45,70,"Moderate gaslighting. You've started apologizing to your IDE.","Stack Overflow Journal of Digital Trauma, Vol.3: 'Silent Bug Phenomenon and Its Effect on Coworker Trust.'"],
+    [70,90,"Severe gaslighting. You have burned a coworker's time defending a bug that no longer exists.","Stack Overflow Journal of Digital Trauma, Vol.4: 'Witnessed Failure, Vanished Evidence: A Field Study.'"],
+    [90,101,"Critical. Your machine is lying to your face and also, somehow, to production.","Stack Overflow Journal of Digital Trauma, Vol.5: 'When the Bug Watches You Watching It Back.'"]
+  ];
+  window.rtCalc = function(){
+    var boxes = document.querySelectorAll('#rt .opt input');
+    var total = 0, max = 0;
+    boxes.forEach(function(b){ max += parseInt(b.dataset.w,10); if(b.checked) total += parseInt(b.dataset.w,10); });
+    var pct = Math.round((total/max)*100);
+    var v = verdicts.find(function(r){ return pct>=r[0] && pct<r[1]; }) || verdicts[0];
+    document.getElementById('scoreOut').textContent = pct + '%';
+    document.getElementById('verdictOut').textContent = v[2];
+    document.getElementById('citeOut').textContent = '"' + v[2].split('.')[0] + '." — cited in ' + v[3];
+    document.getElementById('quizCard').style.display = 'none';
+    document.getElementById('calcBtn').style.display = 'none';
+    document.getElementById('resultCard').style.display = 'block';
+  };
+  window.rtReset = function(){
+    document.querySelectorAll('#rt .opt input').forEach(function(b){ b.checked=false; });
+    document.getElementById('quizCard').style.display = 'block';
+    document.getElementById('calcBtn').style.display = 'block';
+    document.getElementById('resultCard').style.display = 'none';
+  };
+})();
+</script>
+</body>
+</html>

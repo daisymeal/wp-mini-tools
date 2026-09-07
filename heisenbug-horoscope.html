@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Your daily Heisenbug horoscope, based on your bug zodiac sign.">
+<title>The Heisenbug Horoscope</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Quicksand:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  html, body { margin:0; padding:0; background:transparent; }
+  #rt { all:initial; font-family:'Quicksand',system-ui,sans-serif; display:block; max-width:600px; margin:0 auto; padding:34px; color:#40364F; line-height:1.6; text-align:center;
+    background:linear-gradient(150deg,#F0F6FF 0%,#F6F0FC 45%,#FFF1F6 100%); border:1px solid #E9E3F2; border-radius:28px; box-shadow:0 20px 60px rgba(140,140,190,.15); }
+  #rt * { box-sizing:border-box; font-family:inherit; }
+  #rt .eyebrow { display:block; font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:#B79CED; font-weight:700; margin:0 0 8px; }
+  #rt .title { font-family:'Fraunces',serif; display:block; font-size:28px; font-weight:800; margin:0 0 20px; }
+  #rt select { padding:12px 16px; font-size:14.5px; border:2px solid #ECE6F3; border-radius:14px; background:#FAF8FD; color:#40364F; margin-bottom:16px; width:100%; }
+  #rt button { padding:14px 30px; border:none; border-radius:999px; font-weight:700; font-size:15px; color:#fff; background:linear-gradient(120deg,#B79CED,#7FB6E8); cursor:pointer; width:100%; }
+  #rt .card { background:#fff; border:1px solid #ECE6F3; border-radius:22px; padding:24px; margin-top:20px; display:none; }
+  #rt .sign { font-family:'Fraunces',serif; font-size:22px; font-weight:800; margin-bottom:2px; }
+  #rt .dates { font-family:'Space Mono',monospace; font-size:11px; color:#8A7E96; margin-bottom:14px; }
+  #rt .text { font-size:15px; }
+</style>
+</head>
+<body>
+<div id="rt">
+  <span class="eyebrow">Daily Reading</span>
+  <span class="title">The Heisenbug Horoscope</span>
+  <select id="month">
+    <option value="0">January</option><option value="1">February</option><option value="2">March</option>
+    <option value="3">April</option><option value="4">May</option><option value="5">June</option>
+    <option value="6">July</option><option value="7">August</option><option value="8">September</option>
+    <option value="9">October</option><option value="10">November</option><option value="11">December</option>
+  </select>
+  <button onclick="rtReveal()">Reveal my bug sign</button>
+  <div class="card" id="out">
+    <div class="sign" id="signName"></div>
+    <div class="dates" id="signDates"></div>
+    <div class="text" id="signText"></div>
+  </div>
+</div>
+<script>
+(function(){
+  var signs = [
+    {name:"The Observer Effect", dates:"Jan–Feb", text:"The bug vanishes the instant your debugger attaches. Today, try not looking directly at the problem. It works better when it thinks you're not paying attention."},
+    {name:"The Prod-Only", dates:"Feb–Mar", text:"It only happens in production, never in staging, never on your machine, never when anyone with permissions is watching. Today favors humility and a very long incident channel."},
+    {name:"The Timing Window", dates:"Mar–Apr", text:"A race condition that fires once every few hundred runs. Today, patience is your only debugging tool. Also caffeine."},
+    {name:"The Cache Ghost", dates:"Apr–May", text:"It was fixed, then it wasn't, then it was again. Nobody touched the cache. The cache touched itself. Clear it and say nothing."},
+    {name:"The Silent Fixer", dates:"May–Jun", text:"It resolved itself with no commit, no deploy, no explanation. Accept the gift. Do not ask questions. The universe is not ready to answer them."},
+    {name:"The Witness Repellent", dates:"Jun–Jul", text:"The bug disappears the second a second person looks at your screen. Today, consider whether it is you, specifically, that the bug distrusts."},
+    {name:"The Log Denier", dates:"Jul–Aug", text:"Your error logs show nothing unusual, which is itself unusual. Today's lesson: absence of evidence is evidence of a very good liar."},
+    {name:"The Environment Snob", dates:"Aug–Sep", text:"Works on your machine, breaks on theirs, and nobody can explain the diff. Today, your machine is simply better than everyone else's, and it knows it."},
+    {name:"The Retry Whisperer", dates:"Sep–Oct", text:"Failed once, succeeded on retry, no code changed in between. Today favors faith over understanding."},
+    {name:"The Merge Mirage", dates:"Oct–Nov", text:"It broke right after a merge that, on paper, touched nothing relevant. Today, suspect everyone, trust no diff."},
+    {name:"The Midnight Deploy", dates:"Nov–Dec", text:"It only breaks during off-hours deploys when the fewest people can see it happen. Today, the bug has excellent scheduling instincts."},
+    {name:"The Reboot Believer", dates:"Dec–Jan", text:"'Have you tried turning it off and on again' worked, and you will never know why. Today, accept the mystery and move on with your life."}
+  ];
+  window.rtReveal = function(){
+    var m = parseInt(document.getElementById('month').value,10);
+    var s = signs[m];
+    document.getElementById('signName').textContent = s.name;
+    document.getElementById('signDates').textContent = s.dates;
+    document.getElementById('signText').textContent = s.text;
+    document.getElementById('out').style.display = 'block';
+  };
+})();
+</script>
+</body>
+</html>

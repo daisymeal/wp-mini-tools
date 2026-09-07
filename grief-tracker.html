@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Track your progress through the five stages of debugging grief.">
+<title>Debugging Stages of Grief Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Quicksand:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  html, body { margin:0; padding:0; background:transparent; }
+  #rt { all:initial; font-family:'Quicksand',system-ui,sans-serif; display:block; max-width:640px; margin:0 auto; padding:34px; color:#40364F; line-height:1.6;
+    background:linear-gradient(150deg,#F0F6FF 0%,#F6F0FC 45%,#FFF1F6 100%); border:1px solid #E9E3F2; border-radius:28px; box-shadow:0 20px 60px rgba(140,140,190,.15); }
+  #rt * { box-sizing:border-box; font-family:inherit; }
+  #rt .eyebrow { display:block; text-align:center; font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:#FF8FAB; font-weight:700; margin:0 0 8px; }
+  #rt .title { font-family:'Fraunces',serif; display:block; text-align:center; font-size:26px; font-weight:800; margin:0 0 24px; }
+  #rt .stage { display:flex; align-items:center; gap:14px; background:#fff; border:1px solid #ECE6F3; border-radius:16px; padding:14px 16px; margin-bottom:10px; cursor:pointer; transition:border-color .2s; }
+  #rt .stage.active { border-color:#FF8FAB; }
+  #rt .dot { width:26px; height:26px; border-radius:50%; border:2px solid #ECE6F3; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:13px; color:#B7AFC5; }
+  #rt .stage.active .dot { background:#FF8FAB; border-color:#FF8FAB; color:#fff; }
+  #rt .stext { flex:1; }
+  #rt .sname { font-weight:700; font-size:14.5px; }
+  #rt .sdesc { font-size:12.5px; color:#8A7E96; }
+  #rt .timer { font-family:'Space Mono',monospace; font-size:11px; color:#B79CED; white-space:nowrap; }
+  #rt .ascend { display:none; margin-top:16px; text-align:center; background:#fff; border:1px solid #ECE6F3; border-radius:22px; padding:22px; }
+  #rt .ascend b { font-family:'Fraunces',serif; font-size:19px; display:block; margin-bottom:6px; }
+</style>
+</head>
+<body>
+<div id="rt">
+  <span class="eyebrow">Grief Instrument</span>
+  <span class="title">Debugging Stages of Grief Tracker</span>
+  <div id="stages"></div>
+  <div class="ascend" id="ascendCard"><b>You have ascended.</b>It fixed itself. You will never know why. Neither will it.</div>
+</div>
+<script>
+(function(){
+  var stages = [
+    {name:"Denial", desc:"\"It's probably just a fluke.\""},
+    {name:"Anger", desc:"\"WHO wrote this and WHY.\""},
+    {name:"Bargaining", desc:"Pleading with Stack Overflow, 2016 edition."},
+    {name:"Depression", desc:"Staring at the same 4 lines for 40 minutes."},
+    {name:"Acceptance", desc:"It fixed itself. It's fine now. Nothing means anything."}
+  ];
+  var current = -1;
+  var startTimes = {};
+  var container = document.getElementById('stages');
+  stages.forEach(function(s, i){
+    var el = document.createElement('div');
+    el.className = 'stage';
+    el.innerHTML = '<div class="dot">'+(i+1)+'</div><div class="stext"><div class="sname">'+s.name+'</div><div class="sdesc">'+s.desc+'</div></div><div class="timer" id="timer'+i+'"></div>';
+    el.onclick = function(){ rtSelect(i); };
+    container.appendChild(el);
+  });
+  window.rtSelect = function(i){
+    current = i;
+    document.querySelectorAll('#rt .stage').forEach(function(el, idx){
+      el.classList.toggle('active', idx===i);
+    });
+    if(!startTimes[i]) startTimes[i] = Date.now();
+    if(i === stages.length-1){
+      setTimeout(function(){ document.getElementById('ascendCard').style.display = 'block'; }, 600);
+    } else {
+      document.getElementById('ascendCard').style.display = 'none';
+    }
+  };
+  setInterval(function(){
+    Object.keys(startTimes).forEach(function(k){
+      var secs = Math.floor((Date.now()-startTimes[k])/1000);
+      var el = document.getElementById('timer'+k);
+      if(el) el.textContent = secs+'s stuck here';
+    });
+  }, 1000);
+})();
+</script>
+</body>
+</html>

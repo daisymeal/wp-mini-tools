@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Track your bug reproduction rate. Spoiler: it's always 0% in front of witnesses.">
+<title>Bug Reproduction Rate Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Quicksand:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  html, body { margin:0; padding:0; background:transparent; }
+  #rt { all:initial; font-family:'Quicksand',system-ui,sans-serif; display:block; max-width:640px; margin:0 auto; padding:34px; color:#40364F; line-height:1.6;
+    background:linear-gradient(150deg,#F0F6FF 0%,#F6F0FC 45%,#FFF1F6 100%); border:1px solid #E9E3F2; border-radius:28px; box-shadow:0 20px 60px rgba(140,140,190,.15); }
+  #rt * { box-sizing:border-box; font-family:inherit; }
+  #rt .eyebrow { display:block; text-align:center; font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:#7FD8C8; font-weight:700; margin:0 0 8px; }
+  #rt .title { font-family:'Fraunces',serif; display:block; text-align:center; font-size:28px; font-weight:800; margin:0 0 8px; }
+  #rt .sub { display:block; text-align:center; font-size:14px; color:#8A7E96; margin:0 0 24px; }
+  #rt .card { background:#fff; border:1px solid #ECE6F3; border-radius:22px; padding:24px; box-shadow:0 8px 22px rgba(140,140,190,.10); text-align:center; }
+  #rt .counters { display:flex; gap:14px; margin-bottom:20px; }
+  #rt .counter { flex:1; background:#FAF8FD; border:2px solid #ECE6F3; border-radius:16px; padding:16px 8px; }
+  #rt .counter .n { font-family:'Fraunces',serif; font-size:38px; font-weight:800; color:#40364F; }
+  #rt .counter .lbl { font-size:12px; color:#8A7E96; margin-top:2px; }
+  #rt .counter button { margin-top:10px; width:100%; padding:8px; border:none; border-radius:999px; font-weight:700; font-size:13px; color:#fff; cursor:pointer; }
+  #rt #attemptsBtn { background:#7FB6E8; }
+  #rt #successBtn { background:#FF8FAB; }
+  #rt .barWrap { background:#F3EFF8; border-radius:999px; height:22px; overflow:hidden; margin-bottom:10px; }
+  #rt .bar { height:100%; background:linear-gradient(90deg,#7FD8C8,#7FB6E8); width:0%; transition:width .3s ease; }
+  #rt .pctLabel { font-family:'Space Mono',monospace; font-size:22px; font-weight:700; margin-bottom:4px; }
+  #rt .verdict { font-size:14.5px; color:#8A7E96; min-height:40px; }
+  #rt .reset { margin-top:16px; background:transparent; border:2px solid #E3DCEF; color:#8A7E96; padding:10px 18px; border-radius:999px; cursor:pointer; font-weight:700; font-size:13px; }
+</style>
+</head>
+<body>
+<div id="rt">
+  <span class="eyebrow">Live Instrument</span>
+  <span class="title">Bug Reproduction Rate Tracker</span>
+  <span class="sub">Log every attempt. Watch the truth arrive at 0%.</span>
+  <div class="card">
+    <div class="counters">
+      <div class="counter"><div class="n" id="aN">0</div><div class="lbl">Attempts</div><button id="attemptsBtn" onclick="rtBump('a')">+1 attempt</button></div>
+      <div class="counter"><div class="n" id="sN">0</div><div class="lbl">Successes</div><button id="successBtn" onclick="rtBump('s')">+1 success</button></div>
+    </div>
+    <div class="barWrap"><div class="bar" id="bar"></div></div>
+    <div class="pctLabel" id="pctLabel">0% reproduction rate</div>
+    <div class="verdict" id="verdictLabel">Log an attempt to begin the investigation.</div>
+    <button class="reset" onclick="rtReset()">Reset log</button>
+  </div>
+</div>
+<script>
+(function(){
+  var a=0,s=0;
+  var verdicts=[
+    [0,1,"0% is the correct answer. Ghost bug confirmed. It only exists when unobserved."],
+    [1,30,"Barely reproducible. It's testing whether you're paying attention."],
+    [30,60,"Getting there. It's starting to trust you a little, which is worse."],
+    [60,90,"Suspiciously cooperative. Someone tipped it off."],
+    [90,101,"100% reproducible for you, 0% for your coworker. That's not luck, that's targeted."]
+  ];
+  function render(){
+    document.getElementById('aN').textContent=a;
+    document.getElementById('sN').textContent=s;
+    var pct = a===0 ? 0 : Math.round((s/a)*100);
+    document.getElementById('bar').style.width = pct+'%';
+    document.getElementById('pctLabel').textContent = pct+'% reproduction rate';
+    if(a===0){ document.getElementById('verdictLabel').textContent='Log an attempt to begin the investigation.'; return; }
+    var v = verdicts.find(function(r){return pct>=r[0]&&pct<r[1];}) || verdicts[0];
+    document.getElementById('verdictLabel').textContent = v[2];
+  }
+  window.rtBump = function(k){ if(k==='a') a++; else { s++; if(s>a) a=s; } render(); };
+  window.rtReset = function(){ a=0; s=0; render(); };
+  render();
+})();
+</script>
+</body>
+</html>

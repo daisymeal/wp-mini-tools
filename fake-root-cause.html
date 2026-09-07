@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="A fake 5 Whys root cause analysis that spirals into the cosmic.">
+<title>Root Cause Analysis (But Make It Fake)</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Quicksand:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  html, body { margin:0; padding:0; background:transparent; }
+  #rt { all:initial; font-family:'Quicksand',system-ui,sans-serif; display:block; max-width:640px; margin:0 auto; padding:34px; color:#40364F; line-height:1.6;
+    background:linear-gradient(150deg,#F0F6FF 0%,#F6F0FC 45%,#FFF1F6 100%); border:1px solid #E9E3F2; border-radius:28px; box-shadow:0 20px 60px rgba(140,140,190,.15); }
+  #rt * { box-sizing:border-box; font-family:inherit; }
+  #rt .eyebrow { display:block; text-align:center; font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:#FFC97A; font-weight:700; margin:0 0 8px; }
+  #rt .title { font-family:'Fraunces',serif; display:block; text-align:center; font-size:26px; font-weight:800; margin:0 0 22px; }
+  #rt input[type=text] { width:100%; padding:13px 15px; font-size:14.5px; border:2px solid #ECE6F3; border-radius:16px; background:#FAF8FD; color:#40364F; }
+  #rt button { display:block; width:100%; margin-top:12px; padding:14px; border:none; border-radius:999px; font-weight:700; font-size:15px; color:#fff; background:linear-gradient(120deg,#FFC97A,#FF8FAB); cursor:pointer; }
+  #rt .chain { margin-top:20px; display:none; }
+  #rt .step { background:#fff; border:1px solid #ECE6F3; border-radius:16px; padding:14px 16px; margin-bottom:10px; opacity:0; transform:translateY(6px); animation:rtIn .4s ease forwards; }
+  #rt .step .n { font-family:'Space Mono',monospace; font-size:11px; color:#FF8FAB; font-weight:700; margin-bottom:4px; }
+  #rt .step .t { font-size:14.5px; }
+  @keyframes rtIn { to { opacity:1; transform:translateY(0); } }
+</style>
+</head>
+<body>
+<div id="rt">
+  <span class="eyebrow">Investigation Suite</span>
+  <span class="title">Root Cause Analysis (But Make It Fake)</span>
+  <input type="text" id="symptom" placeholder="What broke? e.g. the checkout page">
+  <button onclick="rtRun()">Run the 5 Whys</button>
+  <div class="chain" id="chain"></div>
+</div>
+<script>
+(function(){
+  var whys = [
+    function(s){ return "Why did " + s + " fail? Because a dependency returned an unexpected value."; },
+    function(){ return "Why did the dependency return an unexpected value? Because an upstream service changed its response shape without telling anyone."; },
+    function(){ return "Why did the upstream service change without telling anyone? Because the team that owns it no longer exists in its original form."; },
+    function(){ return "Why does that team no longer exist? Because of a reorg that nobody has fully explained, including to the people in it."; },
+    function(){ return "Why did the reorg happen? Because the universe requires balance, and something, somewhere, has to be broken at all times."; }
+  ];
+  window.rtRun = function(){
+    var s = document.getElementById('symptom').value.trim() || 'the system';
+    var chain = document.getElementById('chain');
+    chain.innerHTML = '';
+    chain.style.display = 'block';
+    whys.forEach(function(fn, i){
+      var d = document.createElement('div');
+      d.className = 'step';
+      d.style.animationDelay = (i*0.35)+'s';
+      d.innerHTML = '<div class="n">WHY #'+(i+1)+'</div><div class="t">'+fn(s)+'</div>';
+      chain.appendChild(d);
+    });
+    var conclusion = document.createElement('div');
+    conclusion.className = 'step';
+    conclusion.style.animationDelay = (whys.length*0.35)+'s';
+    conclusion.innerHTML = '<div class="n">ROOT CAUSE</div><div class="t">Cosmic entropy, routed through a reorg, routed through an undocumented API. Ticket closed. No action items.</div>';
+    chain.appendChild(conclusion);
+  };
+})();
+</script>
+</body>
+</html>

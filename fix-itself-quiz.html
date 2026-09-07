@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Did you actually fix the bug, or did it fix itself and let you take credit?">
+<title>Did I Fix It, Or Did It Let Me Win?</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Quicksand:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  html, body { margin:0; padding:0; background:transparent; }
+  #rt { all:initial; font-family:'Quicksand',system-ui,sans-serif; display:block; max-width:640px; margin:0 auto; padding:34px; color:#40364F; line-height:1.6;
+    background:linear-gradient(150deg,#F0F6FF 0%,#F6F0FC 45%,#FFF1F6 100%); border:1px solid #E9E3F2; border-radius:28px; box-shadow:0 20px 60px rgba(140,140,190,.15); }
+  #rt * { box-sizing:border-box; font-family:inherit; }
+  #rt .eyebrow { display:block; text-align:center; font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:#FF8FAB; font-weight:700; margin:0 0 8px; }
+  #rt .title { font-family:'Fraunces',serif; display:block; text-align:center; font-size:26px; font-weight:800; margin:0 0 24px; }
+  #rt .q { background:#fff; border:1px solid #ECE6F3; border-radius:18px; padding:16px 18px; margin-bottom:12px; }
+  #rt .qtext { font-size:14.5px; font-weight:700; margin-bottom:10px; }
+  #rt .yn { display:flex; gap:10px; }
+  #rt .yn button { flex:1; padding:9px; border-radius:999px; border:2px solid #ECE6F3; background:#FAF8FD; color:#8A7E96; font-weight:700; cursor:pointer; font-size:13px; }
+  #rt .yn button.sel { background:#7FB6E8; border-color:#7FB6E8; color:#fff; }
+  #rt .goBtn { display:block; width:100%; margin-top:8px; padding:14px; border:none; border-radius:999px; font-weight:700; font-size:15px; color:#fff; background:linear-gradient(120deg,#FF8FAB,#B79CED); cursor:pointer; }
+  #rt .result { display:none; text-align:center; background:#fff; border:1px solid #ECE6F3; border-radius:22px; padding:24px; margin-top:14px; }
+  #rt .verdict { font-family:'Fraunces',serif; font-size:22px; font-weight:800; margin-bottom:8px; }
+  #rt .detail { font-size:14.5px; color:#8A7E96; }
+  #rt .again { background:transparent; border:2px solid #E3DCEF; color:#8A7E96; margin-top:14px; width:100%; padding:12px; border-radius:999px; font-weight:700; cursor:pointer; }
+</style>
+</head>
+<body>
+<div id="rt">
+  <span class="eyebrow">Verdict Engine</span>
+  <span class="title">Did I Fix It, Or Did It Let Me Win?</span>
+
+  <div id="quizArea">
+    <div class="q"><div class="qtext">Could you explain the fix to another person, out loud, without hand-waving?</div>
+      <div class="yn" data-q="0"><button onclick="rtAns(0,true)">Yes</button><button onclick="rtAns(0,false)">No</button></div></div>
+    <div class="q"><div class="qtext">Could you reproduce the original bug again right now, on purpose?</div>
+      <div class="yn" data-q="1"><button onclick="rtAns(1,true)">Yes</button><button onclick="rtAns(1,false)">No</button></div></div>
+    <div class="q"><div class="qtext">Did the fix match your hypothesis, or did you just try things until it stopped?</div>
+      <div class="yn" data-q="2"><button onclick="rtAns(2,true)">Matched hypothesis</button><button onclick="rtAns(2,false)">Just tried things</button></div></div>
+    <div class="q"><div class="qtext">Are you at peace, or just relieved?</div>
+      <div class="yn" data-q="3"><button onclick="rtAns(3,true)">At peace</button><button onclick="rtAns(3,false)">Just relieved</button></div></div>
+    <div class="q"><div class="qtext">Did you change exactly one thing, or several things "just in case"?</div>
+      <div class="yn" data-q="4"><button onclick="rtAns(4,true)">One thing</button><button onclick="rtAns(4,false)">Several, just in case</button></div></div>
+    <button class="goBtn" onclick="rtVerdict()">Get my verdict</button>
+  </div>
+
+  <div class="result" id="resultCard">
+    <div class="verdict" id="verdictText"></div>
+    <div class="detail" id="detailText"></div>
+    <button class="again" onclick="rtReset()">Ask again</button>
+  </div>
+</div>
+<script>
+(function(){
+  var answers = [null,null,null,null,null];
+  window.rtAns = function(i, val){
+    answers[i] = val;
+    var group = document.querySelector('.yn[data-q="'+i+'"]');
+    var btns = group.querySelectorAll('button');
+    btns.forEach(function(b,idx){ b.classList.toggle('sel', (idx===0)===val); });
+  };
+  window.rtVerdict = function(){
+    if(answers.includes(null)){ alert('Answer all five. The bug is patient. Are you?'); return; }
+    var score = answers.filter(Boolean).length;
+    var v, d;
+    if(score>=4){ v="You fixed it."; d="Understood, reproducible, deliberate. Rare. Suspiciously rare. Enjoy it."; }
+    else if(score>=2){ v="It let you win."; d="Something changed, you're not fully sure what or why, but you'll take the W and never speak of this again."; }
+    else { v="You are now in a codependent relationship with entropy."; d="You didn't fix it. It got tired of you and left. It will be back."; }
+    document.getElementById('verdictText').textContent = v;
+    document.getElementById('detailText').textContent = d;
+    document.getElementById('quizArea').style.display='none';
+    document.getElementById('resultCard').style.display='block';
+  };
+  window.rtReset = function(){
+    answers = [null,null,null,null,null];
+    document.querySelectorAll('#rt .yn button').forEach(function(b){ b.classList.remove('sel'); });
+    document.getElementById('quizArea').style.display='block';
+    document.getElementById('resultCard').style.display='none';
+  };
+})();
+</script>
+</body>
+</html>

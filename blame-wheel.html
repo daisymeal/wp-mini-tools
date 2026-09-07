@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Spin the wheel to find out who or what is really to blame for your bug.">
+<title>Who Do You Blame?</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Quicksand:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  html, body { margin:0; padding:0; background:transparent; }
+  #rt { all:initial; font-family:'Quicksand',system-ui,sans-serif; display:block; max-width:520px; margin:0 auto; padding:34px; color:#40364F; line-height:1.6; text-align:center;
+    background:linear-gradient(150deg,#F0F6FF 0%,#F6F0FC 45%,#FFF1F6 100%); border:1px solid #E9E3F2; border-radius:28px; box-shadow:0 20px 60px rgba(140,140,190,.15); }
+  #rt * { box-sizing:border-box; font-family:inherit; }
+  #rt .eyebrow { display:block; font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:#FF8FAB; font-weight:700; margin:0 0 8px; }
+  #rt .title { font-family:'Fraunces',serif; display:block; font-size:28px; font-weight:800; margin:0 0 22px; }
+  #rt .wheelWrap { position:relative; width:280px; height:280px; margin:0 auto 22px; }
+  #rt .pointer { position:absolute; top:-6px; left:50%; transform:translateX(-50%); width:0; height:0; border-left:12px solid transparent; border-right:12px solid transparent; border-top:20px solid #40364F; z-index:5; }
+  #rt svg { width:280px; height:280px; transition: transform 3.5s cubic-bezier(.15,.75,.2,1); transform:rotate(0deg); }
+  #rt svg text { font-family:'Quicksand',sans-serif; font-weight:700; font-size:11px; fill:#fff; }
+  #rt button { padding:14px 34px; border:none; border-radius:999px; font-weight:700; font-size:15px; color:#fff; background:linear-gradient(120deg,#FF8FAB,#B79CED); cursor:pointer; }
+  #rt .result { margin-top:18px; font-family:'Fraunces',serif; font-size:20px; font-weight:800; min-height:30px; color:#40364F; }
+</style>
+</head>
+<body>
+<div id="rt">
+  <span class="eyebrow">Judgment Device</span>
+  <span class="title">Who Do You Blame?</span>
+  <div class="wheelWrap">
+    <div class="pointer"></div>
+    <svg id="wheel" viewBox="0 0 200 200"></svg>
+  </div>
+  <button onclick="rtSpin()">Spin the wheel</button>
+  <div class="result" id="result"></div>
+</div>
+<script>
+(function(){
+  var labels = ["Cosmic rays","Mercury retrograde","The intern","Cache","A server room demon","DNS (always DNS)","Solar flares","The last person who touched it","Legacy code","A misplaced semicolon (allegedly)"];
+  var colors = ["#FF8FAB","#7FB6E8","#B79CED","#7FD8C8","#FFC97A","#FF8FAB","#7FB6E8","#B79CED","#7FD8C8","#FFC97A"];
+  var n = labels.length, slice = 360/n;
+  var svg = document.getElementById('wheel');
+  var cx=100, cy=100, r=98;
+  function polar(deg){ var rad=(deg-90)*Math.PI/180; return [cx+r*Math.cos(rad), cy+r*Math.sin(rad)]; }
+  var html='';
+  for(var i=0;i<n;i++){
+    var a0=i*slice, a1=(i+1)*slice;
+    var p0=polar(a0), p1=polar(a1);
+    var large = slice>180?1:0;
+    html += '<path d="M'+cx+','+cy+' L'+p0[0]+','+p0[1]+' A'+r+','+r+' 0 '+large+',1 '+p1[0]+','+p1[1]+' Z" fill="'+colors[i]+'" stroke="#fff" stroke-width="1.5"/>';
+    var mid=a0+slice/2, tp=polar(mid);
+    var tx = cx + (r*0.62)*Math.cos((mid-90)*Math.PI/180);
+    var ty = cy + (r*0.62)*Math.sin((mid-90)*Math.PI/180);
+    html += '<text x="'+tx+'" y="'+ty+'" text-anchor="middle" transform="rotate('+mid+' '+tx+' '+ty+')">'+labels[i]+'</text>';
+  }
+  svg.innerHTML = html;
+  var spinning=false, currentRot=0;
+  window.rtSpin = function(){
+    if(spinning) return;
+    spinning=true;
+    document.getElementById('result').textContent='';
+    var extra = 360*5 + Math.floor(Math.random()*360);
+    currentRot += extra;
+    svg.style.transform = 'rotate('+currentRot+'deg)';
+    setTimeout(function(){
+      var finalDeg = currentRot % 360;
+      var pointerAt = (360 - finalDeg + 90) % 360; // slice at top under pointer
+      var idx = Math.floor(pointerAt/slice) % n;
+      document.getElementById('result').textContent = 'Verdict: ' + labels[idx];
+      spinning=false;
+    }, 3600);
+  };
+})();
+</script>
+</body>
+</html>

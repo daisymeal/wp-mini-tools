@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Confess your silently failed error and receive absolution, but not for your logs.">
+<title>The Silent Failure Confession Booth</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Quicksand:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  html, body { margin:0; padding:0; background:transparent; }
+  #rt { all:initial; font-family:'Quicksand',system-ui,sans-serif; display:block; max-width:600px; margin:0 auto; padding:34px; color:#40364F; line-height:1.6; text-align:center;
+    background:linear-gradient(150deg,#F0F6FF 0%,#F6F0FC 45%,#FFF1F6 100%); border:1px solid #E9E3F2; border-radius:28px; box-shadow:0 20px 60px rgba(140,140,190,.15); }
+  #rt * { box-sizing:border-box; font-family:inherit; }
+  #rt .eyebrow { display:block; font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:#B79CED; font-weight:700; margin:0 0 8px; }
+  #rt .title { font-family:'Fraunces',serif; display:block; font-size:26px; font-weight:800; margin:0 0 20px; }
+  #rt textarea { width:100%; min-height:100px; padding:14px; font-size:14.5px; border:2px solid #ECE6F3; border-radius:16px; background:#FAF8FD; color:#40364F; resize:vertical; font-family:inherit; text-align:left; }
+  #rt button { display:block; width:100%; margin-top:12px; padding:14px; border:none; border-radius:999px; font-weight:700; font-size:15px; color:#fff; background:linear-gradient(120deg,#B79CED,#7FB6E8); cursor:pointer; }
+  #rt .out { display:none; margin-top:18px; background:#fff; border:1px solid #ECE6F3; border-radius:22px; padding:24px; }
+  #rt .absolution { font-family:'Fraunces',serif; font-size:19px; font-weight:800; margin-bottom:10px; }
+  #rt .fine { font-size:13.5px; color:#8A7E96; font-style:italic; }
+</style>
+</head>
+<body>
+<div id="rt">
+  <span class="eyebrow">Sanctuary</span>
+  <span class="title">The Silent Failure Confession Booth</span>
+  <textarea id="conf" placeholder="Confess what silently broke... e.g. the cron job stopped running three weeks ago and nobody noticed"></textarea>
+  <button onclick="rtConfess()">Confess</button>
+  <div class="out" id="out">
+    <div class="absolution" id="absLine"></div>
+    <div class="fine" id="fineLine"></div>
+  </div>
+</div>
+<script>
+(function(){
+  var lines = [
+    "Your sins are forgiven, but your logs are not.",
+    "Go in peace. Your monitoring alerts, however, will not.",
+    "You are absolved. Your dashboard remains unaware anything happened.",
+    "Forgiven. Also, that's been silently failing since March, but that's between you and the crontab now.",
+    "Your confession is accepted. A retroactive incident report is, regrettably, still required.",
+    "Peace be with you. Your on-call rotation will not extend the same courtesy."
+  ];
+  window.rtConfess = function(){
+    var t = document.getElementById('conf').value.trim();
+    var line = lines[Math.floor(Math.random()*lines.length)];
+    document.getElementById('absLine').textContent = line;
+    document.getElementById('fineLine').textContent = t ? 'Confessed: "' + t + '"' : 'No details given. The silence continues, fittingly.';
+    document.getElementById('out').style.display = 'block';
+  };
+})();
+</script>
+</body>
+</html>
